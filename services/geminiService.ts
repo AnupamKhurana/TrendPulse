@@ -265,9 +265,23 @@ const researchReportSchema = {
       },
       required: ["tam", "sam", "som", "explanation"]
     },
-    verdict: { type: Type.STRING }
+    verdict: { type: Type.STRING },
+    trendKeyword: { type: Type.STRING },
+    currentVolume: { type: Type.STRING },
+    growthPercentage: { type: Type.NUMBER },
+    trendData: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          year: { type: Type.STRING },
+          volume: { type: Type.NUMBER }
+        },
+        required: ["year", "volume"]
+      }
+    }
   },
-  required: ["summary", "swot", "competitors", "marketSize", "verdict"]
+  required: ["summary", "swot", "competitors", "marketSize", "verdict", "trendKeyword", "currentVolume", "growthPercentage", "trendData"]
 };
 
 const brandIdentitySchema = {
@@ -584,14 +598,13 @@ const generateWithLocalAI = async (onProgress?: (log: string) => void): Promise<
 }
 
 // --- OTHER TOOLS ---
-// Note: We need to wrap these similarly if we want them to work with Local AI, 
-// but for brevity, I'm applying the same pattern to `generateResearchReport` as an example.
 
 export const generateResearchReport = async (query: string): Promise<ResearchReport | null> => {
     // Local AI fallback
     if (currentConfig.provider === 'local') {
         const prompt = `Generate a hypothetical Market Research Report JSON for the idea: "${query}".
         Include "summary", "swot" (strengths, weaknesses, opportunities, threats), "competitors" (name, price, description), "marketSize" (tam, sam, som, explanation), and "verdict".
+        Also include trend analysis for a main keyword related to the idea: "trendKeyword", "currentVolume" (e.g. "12k"), "growthPercentage" (integer), and "trendData" (array of 4 years of volume data).
         Return ONLY JSON.`;
         
         const res = await callLocalAI([{ role: 'user', content: prompt }]);
@@ -609,7 +622,7 @@ export const generateResearchReport = async (query: string): Promise<ResearchRep
 
         const reportResponse = await ai.models.generateContent({
             model: MODEL_NAME,
-            contents: `Based on: ${researchContext}\n\nGenerate a detailed "Research Report" in JSON format for "${query}".\nInclude SWOT, Competitors, Market Size, Verdict.`,
+            contents: `Based on: ${researchContext}\n\nGenerate a detailed "Research Report" in JSON format for "${query}".\nInclude SWOT, Competitors, Market Size, Verdict.\n\nAlso identify the main search keyword related to this idea. Provide its "trendKeyword", "currentVolume" (e.g. '15k'), "growthPercentage" (e.g. 25), and "trendData" (a list of 4 objects with 'year' and 'volume' representing the last 4 years of search interest).`,
             config: { responseMimeType: "application/json", responseSchema: (researchReportSchema as any) }
         });
         return reportResponse.text ? JSON.parse(reportResponse.text) : null;

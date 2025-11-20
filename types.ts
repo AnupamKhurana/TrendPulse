@@ -126,6 +126,11 @@ export interface ResearchReport {
     explanation: string;
   };
   verdict: string;
+  // Trend Data for Research Graph
+  trendKeyword: string;
+  trendData: ChartDataPoint[];
+  currentVolume: string;
+  growthPercentage: number;
 }
 
 // Builder Studio Types
