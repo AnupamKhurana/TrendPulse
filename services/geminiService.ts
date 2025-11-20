@@ -8,7 +8,8 @@ let currentConfig: AIProviderConfig = {
     provider: 'gemini',
     localBaseUrl: 'http://localhost:11434/v1', // Default Ollama port
     localModelName: 'llama3',
-    localApiKey: 'ollama'
+    localApiKey: 'ollama',
+    enableHybridSearch: false
 };
 
 export const setAIConfig = (config: AIProviderConfig) => {
@@ -427,7 +428,11 @@ const generateWithGemini = async (onProgress?: (log: string) => void): Promise<B
     if (onProgress) onProgress("Calculating opportunity scores and metrics...");
     
     let mainIdea = mainIdeaRes.text ? JSON.parse(mainIdeaRes.text) : DEFAULT_IDEA;
-    mainIdea = { ...mainIdea, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) };
+    mainIdea = { 
+        ...mainIdea, 
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        isSimulated: false // Explicitly mark as Live
+    };
     
     if (onProgress) onProgress("Finalizing report generation...");
     return mainIdea;
@@ -446,16 +451,52 @@ const generateWithLocalAI = async (onProgress?: (log: string) => void): Promise<
         const targetSector = DIVERSE_DOMAINS[Math.floor(Math.random() * DIVERSE_DOMAINS.length)];
         if (onProgress) onProgress(`Targeting High-Growth Sector: ${targetSector}`);
 
-        // Local Step 1: Simulate Research (Since no internet access)
-        if (onProgress) onProgress("Simulating market research from training data...");
-        
-        const contextPrompt = `You are an expert market researcher.
-        Topic: ${targetSector}.
-        Task: Identify a specific, high-potential gap or problem in this sector based on your knowledge of 2024/2025 trends.
-        Output: A concise summary of the problem, the trend driving it, and why existing solutions fail.`;
+        let trendContext = "";
+        let isSimulated = true;
 
-        const trendContext = await callLocalAI([{ role: 'user', content: contextPrompt }], false);
-        if (!trendContext) return DEFAULT_IDEA;
+        // --- HYBRID SEARCH MODE ---
+        // If enabled, use Gemini for the Search Step, then switch to Local AI for Synthesis
+        if (currentConfig.enableHybridSearch) {
+            try {
+                if (onProgress) onProgress("HYBRID MODE: Fetching Real-Time Google Data...");
+                
+                const searchResponse = await ai.models.generateContent({
+                  model: MODEL_NAME,
+                  contents: `Perform a specific search for rising trends, customer complaints, and unmet needs specifically within the "${targetSector}" sector for late 2024 and 2025.
+                  Identify a specific problem that is currently unsolved or poorly solved in this niche.
+                  Return a summary text describing:
+                  1. The Primary Trend in ${targetSector}.
+                  2. Key problems/pain points based on search results.
+                  3. Emerging keywords associated with this trend.`,
+                  config: {
+                    tools: [{ googleSearch: {} }],
+                  }
+                });
+                
+                if (searchResponse.text) {
+                    trendContext = searchResponse.text;
+                    isSimulated = false; // We have real data!
+                    if (onProgress) onProgress("Real-Time Data Acquired. Switching to Local AI...");
+                }
+            } catch (e) {
+                console.warn("Hybrid search failed, falling back to simulation:", e);
+                if (onProgress) onProgress("Hybrid Search Failed. Falling back to Simulation...");
+            }
+        }
+
+        // Fallback: Simulate Research if Hybrid failed or disabled
+        if (!trendContext) {
+            if (onProgress) onProgress("Simulating market research from training data...");
+            
+            const contextPrompt = `You are an expert market researcher.
+            Topic: ${targetSector}.
+            Task: Identify a specific, high-potential gap or problem in this sector based on your knowledge of 2024/2025 trends.
+            Output: A concise summary of the problem, the trend driving it, and why existing solutions fail.`;
+
+            const simulatedContext = await callLocalAI([{ role: 'user', content: contextPrompt }], false);
+            if (!simulatedContext) return DEFAULT_IDEA;
+            trendContext = simulatedContext;
+        }
 
         // Local Step 2: Synthesis
         if (onProgress) onProgress("Synthesizing business concept...");
@@ -527,7 +568,11 @@ const generateWithLocalAI = async (onProgress?: (log: string) => void): Promise<
         // Fallback if JSON failed
         if (!mainIdea || !mainIdea.title) return DEFAULT_IDEA;
 
-        mainIdea = { ...mainIdea, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) };
+        mainIdea = { 
+            ...mainIdea, 
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            isSimulated: isSimulated // Use our tracking flag
+        };
         return mainIdea as BusinessIdea;
 
     } catch (e) {

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Settings, Server, Globe, X, Check, Terminal } from 'lucide-react';
+import { Settings, Server, Globe, X, Check, Terminal, Zap } from 'lucide-react';
 import { AIProviderConfig } from '../types';
 import { getAIConfig, setAIConfig } from '../services/geminiService';
 
@@ -45,7 +45,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
            </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
             
             {/* Provider Selection */}
             <div>
@@ -92,7 +92,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm text-yellow-800 mb-4">
                         <p className="flex items-start">
                             <span className="font-bold mr-2">Warning:</span>
-                            Local models cannot browse the live web. Trend data will be simulated based on the model's internal knowledge.
+                            Local models are offline. By default, data is simulated based on the model's training.
                         </p>
                     </div>
                     
@@ -123,6 +123,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                             />
                         </div>
+                    </div>
+
+                    {/* Hybrid Mode Toggle */}
+                    <div className="pt-2 border-t border-gray-100">
+                         <div className="flex items-center justify-between mb-2">
+                             <div>
+                                <label className="text-sm font-bold text-gray-900 flex items-center">
+                                    <Zap className="w-4 h-4 mr-2 text-purple-500" /> Hybrid Search
+                                </label>
+                                <p className="text-xs text-gray-500 mt-0.5">Use Google API for search, Local AI for synthesis.</p>
+                             </div>
+                             <div 
+                                className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${config.enableHybridSearch ? 'bg-purple-500' : 'bg-gray-200'}`}
+                                onClick={() => setConfig({...config, enableHybridSearch: !config.enableHybridSearch})}
+                             >
+                                 <div className={`w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform ${config.enableHybridSearch ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                             </div>
+                         </div>
                     </div>
 
                     <div>

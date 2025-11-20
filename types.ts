@@ -63,6 +63,9 @@ export interface BusinessIdea {
   volumeNote?: string; // Contextual note for volume (e.g. "Underserved market")
   keyword: string;
   
+  // Added flag to distinguish between Live Data and Local Simulation
+  isSimulated?: boolean; 
+  
   // Sidebar data
   opportunityScore: number;
   problemSeverity: number;
@@ -173,6 +176,7 @@ export interface AIProviderConfig {
   localBaseUrl: string; // e.g., http://localhost:11434/v1
   localModelName: string; // e.g., llama3, mistral
   localApiKey?: string; // Optional, usually 'ollama' or not needed
+  enableHybridSearch?: boolean; // New: Use Gemini for Search, Local for Synthesis
 }
 
 // --- Defaults ---
@@ -197,6 +201,7 @@ export const DEFAULT_IDEA: BusinessIdea = {
   currentVolume: "9.9k",
   volumeNote: "Rapidly growing interest in automated logistics solutions.",
   keyword: "Cloud based inventory management",
+  isSimulated: false,
   chartData: [
     { year: '2022', volume: 20 },
     { year: '2023', volume: 35 },
