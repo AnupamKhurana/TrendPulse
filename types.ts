@@ -164,6 +164,17 @@ export interface AdCreativesResult {
 
 export type PageView = 'home' | 'pricing' | 'login' | 'signup' | 'build' | 'research' | 'analysis' | 'saved' | 'signals';
 
+// --- AI Config Types ---
+export type AIProvider = 'gemini' | 'local';
+
+export interface AIProviderConfig {
+  provider: AIProvider;
+  // Local AI Settings
+  localBaseUrl: string; // e.g., http://localhost:11434/v1
+  localModelName: string; // e.g., llama3, mistral
+  localApiKey?: string; // Optional, usually 'ollama' or not needed
+}
+
 // --- Defaults ---
 
 export const DEFAULT_IDEA: BusinessIdea = {

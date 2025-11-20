@@ -1,7 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, X, Search, BookMarked } from 'lucide-react';
+import { Menu, ChevronDown, X, Search, BookMarked, Settings } from 'lucide-react';
 import { PageView } from '../types';
+import { SettingsModal } from './SettingsModal';
 
 interface HeaderProps {
   onNavigate: (page: PageView) => void;
@@ -10,6 +11,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -30,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   };
 
   return (
+    <>
     <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -88,6 +91,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                         >
                             <BookMarked className="w-4 h-4 mr-2" /> Saved Ideas
                         </button>
+                        <div className="border-t border-gray-50 my-1"></div>
+                        <button 
+                            onClick={() => { setIsSettingsOpen(true); setIsMoreOpen(false); }}
+                            className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                        >
+                            <Settings className="w-4 h-4 mr-2" /> Settings
+                        </button>
                     </div>
                 )}
             </div>
@@ -141,6 +151,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                 <button onClick={() => handleNavClick('saved')} className="block w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md text-sm flex items-center">
                     <BookMarked className="w-4 h-4 mr-2" /> Saved Ideas
                 </button>
+                 <button onClick={() => { setIsSettingsOpen(true); setIsMobileMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md text-sm flex items-center">
+                    <Settings className="w-4 h-4 mr-2" /> AI Settings
+                </button>
                 <div className="border-t border-gray-100 my-2"></div>
                 <div className="flex gap-2 p-2">
                     <button onClick={() => handleNavClick('login')} className="flex-1 text-center py-2 text-gray-900 font-medium border border-gray-200 rounded-md">Login</button>
@@ -150,5 +163,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
         </div>
       )}
     </header>
+    
+    {/* Settings Modal */}
+    <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+    </>
   );
 };
