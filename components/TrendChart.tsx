@@ -20,6 +20,18 @@ interface TrendChartProps {
   volumeNote?: string;
 }
 
+// Utility to format large numbers
+const formatYAxis = (num: number) => {
+  if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
+  return num.toString();
+};
+
+const formatTooltipValue = (num: number) => {
+  return new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(num);
+}
+
 export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVolume, growth, volumeNote }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm h-full flex flex-col relative">
@@ -57,8 +69,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
             data={data}
             margin={{
               top: 10,
-              right: 0,
-              left: -20,
+              right: 10,
+              left: -10, // Adjusted left margin to fit labels
               bottom: 0,
             }}
           >
@@ -79,17 +91,20 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
             <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{fontSize: 11, fill: '#9CA3AF'}} 
+                tick={{fontSize: 10, fill: '#9CA3AF'}} 
+                tickFormatter={formatYAxis}
+                width={35}
             />
             <Tooltip 
                 cursor={{ stroke: '#10B981', strokeWidth: 1, strokeDasharray: '4 4' }}
                 content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
+                    const val = payload[0].value as number;
                     return (
                         <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl">
                             <p className="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">{label}</p>
                             <p className="text-emerald-600 font-bold text-lg mb-2">
-                                {payload[0].value} <span className="text-xs font-normal text-gray-500">searches</span>
+                                {formatTooltipValue(val)} <span className="text-xs font-normal text-gray-500">searches</span>
                             </p>
                             <div className="pt-2 border-t border-gray-50">
                                 <div className="flex items-center gap-1 mb-1">
