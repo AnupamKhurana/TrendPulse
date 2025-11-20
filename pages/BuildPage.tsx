@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { BusinessIdea, BrandIdentity, LandingPageContent, MVPSpecs, AdCreativesResult } from '../types';
-import { Loader2, Hammer, PenTool, Layout, ArrowRight, CheckCircle2, Copy, Megaphone, Image as ImageIcon, Hash } from 'lucide-react';
+import { Loader2, Hammer, PenTool, Layout, ArrowRight, CheckCircle2, Copy, Megaphone, Image as ImageIcon, Hash, AlertTriangle, RefreshCcw } from 'lucide-react';
 import { generateBrandIdentity, generateLandingPage, generateMVPSpecs, generateAdCreatives } from '../services/geminiService';
 
 interface BuildPageProps {
@@ -13,6 +13,7 @@ type ToolType = 'brand' | 'landing' | 'mvp' | 'ads' | null;
 export const BuildPage: React.FC<BuildPageProps> = ({ idea }) => {
   const [activeTool, setActiveTool] = useState<ToolType>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Results State
   const [brandData, setBrandData] = useState<BrandIdentity | null>(null);
@@ -21,8 +22,16 @@ export const BuildPage: React.FC<BuildPageProps> = ({ idea }) => {
   const [adData, setAdData] = useState<AdCreativesResult | null>(null);
 
   const handleToolClick = async (tool: ToolType) => {
-    if (activeTool === tool) return; // Already active
+    // Allow retry if previously failed (error exists) or data is missing
+    const hasData = (tool === 'brand' && brandData) || 
+                    (tool === 'landing' && landingData) || 
+                    (tool === 'mvp' && mvpData) || 
+                    (tool === 'ads' && adData);
+                    
+    if (activeTool === tool && hasData) return; 
+
     setActiveTool(tool);
+    setError(null);
     
     // Check if data already exists to avoid re-fetching
     if (tool === 'brand' && brandData) return;
@@ -34,19 +43,24 @@ export const BuildPage: React.FC<BuildPageProps> = ({ idea }) => {
     try {
       if (tool === 'brand') {
         const res = await generateBrandIdentity(idea);
-        setBrandData(res);
+        if (res) setBrandData(res);
+        else throw new Error("Failed to generate brand identity");
       } else if (tool === 'landing') {
         const res = await generateLandingPage(idea);
-        setLandingData(res);
+        if (res) setLandingData(res);
+        else throw new Error("Failed to generate landing page");
       } else if (tool === 'mvp') {
         const res = await generateMVPSpecs(idea);
-        setMvpData(res);
+        if (res) setMvpData(res);
+        else throw new Error("Failed to generate MVP specs");
       } else if (tool === 'ads') {
         const res = await generateAdCreatives(idea);
-        setAdData(res);
+        if (res) setAdData(res);
+        else throw new Error("Failed to generate ad creatives");
       }
     } catch (error) {
       console.error("Generation failed", error);
+      setError("Generation failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -134,6 +148,22 @@ export const BuildPage: React.FC<BuildPageProps> = ({ idea }) => {
               </div>
           )}
 
+          {error && activeTool && !isLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-40 p-8 text-center">
+                  <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                      <AlertTriangle className="w-8 h-8 text-red-500" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Generation Failed</h3>
+                  <p className="text-gray-500 max-w-md mb-6">{error}</p>
+                  <button 
+                    onClick={() => handleToolClick(activeTool)}
+                    className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                  >
+                      <RefreshCcw className="w-4 h-4 mr-2" /> Try Again
+                  </button>
+              </div>
+          )}
+
           {/* Brand Identity View */}
           {activeTool === 'brand' && brandData && (
               <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -145,6 +175,23 @@ export const BuildPage: React.FC<BuildPageProps> = ({ idea }) => {
                       <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide">Brand Identity</span>
                   </div>
                   
+                  {/* Logo Concept Section */}
+                  <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-100 flex flex-col md:flex-row items-center gap-6">
+                        <div 
+                            className="w-24 h-24 rounded-xl shadow-sm border border-gray-200 flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: 'white' }}
+                        >
+                            {/* Placeholder Logo using Initials */}
+                            <span className="text-4xl font-extrabold" style={{ color: brandData.colors[0]?.hex || '#000' }}>
+                                {brandData.name.substring(0, 2).toUpperCase()}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase mb-2">Logo Concept</h3>
+                            <p className="text-gray-600 text-sm leading-relaxed">{brandData.logoConcept}</p>
+                        </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                       <div>
                           <h3 className="text-sm font-bold text-gray-900 uppercase mb-4">Color Palette</h3>

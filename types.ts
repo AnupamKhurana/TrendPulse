@@ -129,6 +129,7 @@ export interface ResearchReport {
 export interface BrandIdentity {
   name: string;
   tagline: string;
+  logoConcept: string;
   colors: { name: string; hex: string }[];
   fontPairing: { primary: string; secondary: string };
   voice: string;

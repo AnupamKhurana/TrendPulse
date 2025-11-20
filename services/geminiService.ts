@@ -7,28 +7,28 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const MODEL_NAME = "gemini-2.5-flash";
 
-// Fallback domains in case dynamic search fails
-const FALLBACK_DOMAINS = [
-  "HealthTech & Digital Wellness",
-  "Sustainable Energy & GreenTech",
-  "FinTech & Personal Wealth Management",
-  "EdTech & Micro-learning Platforms",
-  "AgriTech & Vertical Farming",
-  "Pet Tech & Services",
-  "Remote Work Infrastructure & Tools",
-  "AgeTech & Senior Care",
-  "Creator Economy Monetization",
-  "Cybersecurity for SMBs",
-  "Smart Home & IoT Solutions",
-  "Niche E-commerce & D2C Brands",
-  "Legal Tech & Compliance",
-  "Logistics & Last-Mile Delivery",
-  "Mental Health & Mindfulness Apps",
-  "Construction Tech (ConTech)",
-  "Biohacking & Longevity",
-  "AI Agents for Specific Industries",
-  "Travel & Local Experiences",
-  "PropTech & Real Estate Innovation"
+// Expanded list of specific, high-growth domains to replace the API "Macro Scan"
+// This ensures diversity without needing an extra API call to ask "what is trending?"
+const DIVERSE_DOMAINS = [
+  // Tech & SaaS
+  "Micro-SaaS for Niche Agencies", "No-Code Automation Tools", "DevTools for AI Agents",
+  "Cybersecurity for Remote Teams", "Vertical SaaS for Construction", "LegalTech for SMBs",
+  
+  // Health & Wellness
+  "FemTech & Women's Health", "Biohacking & Longevity Trackers", "Mental Health AI Companions",
+  "Telehealth for Specialized Care", "Sleep Technology", "Personalized Nutrition",
+
+  // Sustainability
+  "Circular Economy Marketplaces", "Carbon Accounting Software", "Sustainable Packaging",
+  "AgriTech & Vertical Farming", "Water Management Tech", "Clean Meat & Plant Protein",
+
+  // Consumer & Lifestyle
+  "Pet Tech & Wearables", "Creator Economy Monetization", "Digital Fashion & Assets",
+  "Smart Home Energy Management", "EdTech for Vocational Skills", "AgeTech (Senior Care)",
+
+  // Emerging Markets
+  "Space Economy Services", "Drone Logistics", "Synthetic Media Detection",
+  "Quantum Computing Education", "Web3 Loyalty Programs", "Autonomous Retail"
 ];
 
 // Schemas
@@ -39,7 +39,8 @@ const chartDataSchema = {
     properties: {
       year: { type: Type.STRING },
       volume: { type: Type.NUMBER }
-    }
+    },
+    required: ["year", "volume"]
   }
 };
 
@@ -76,7 +77,8 @@ const businessIdeaSchema = {
           subtext: { type: Type.STRING },
           color: { type: Type.STRING },
           tooltip: { type: Type.STRING }
-        }
+        },
+        required: ["label", "value", "subtext", "color", "tooltip"]
       }
     },
     communitySignals: {
@@ -87,7 +89,8 @@ const businessIdeaSchema = {
                 source: { type: Type.STRING },
                 stats: { type: Type.STRING },
                 score: { type: Type.STRING }
-            }
+            },
+            required: ["source", "stats", "score"]
         }
     },
     communityDeepDive: {
@@ -100,7 +103,8 @@ const businessIdeaSchema = {
                     positive: { type: Type.NUMBER },
                     neutral: { type: Type.NUMBER },
                     negative: { type: Type.NUMBER }
-                }
+                },
+                required: ["positive", "neutral", "negative"]
             },
             topKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
             discussions: {
@@ -112,7 +116,8 @@ const businessIdeaSchema = {
                         text: { type: Type.STRING },
                         platform: { type: Type.STRING },
                         sentiment: { type: Type.STRING, enum: ['positive', 'neutral', 'negative'] }
-                    }
+                    },
+                    required: ["author", "text", "platform", "sentiment"]
                 }
             },
             platformBreakdown: {
@@ -123,10 +128,12 @@ const businessIdeaSchema = {
                         name: { type: Type.STRING },
                         activityLevel: { type: Type.STRING, enum: ['High', 'Medium', 'Low'] },
                         userIntent: { type: Type.STRING }
-                    }
+                    },
+                    required: ["name", "activityLevel", "userIntent"]
                 }
             }
-        }
+        },
+        required: ["sentimentScore", "sentimentBreakdown", "topKeywords", "discussions", "platformBreakdown"]
     },
     categories: {
         type: Type.OBJECT,
@@ -135,10 +142,11 @@ const businessIdeaSchema = {
             market: { type: Type.STRING },
             target: { type: Type.STRING },
             competitor: { type: Type.STRING }
-        }
+        },
+        required: ["type", "market", "target", "competitor"]
     }
   },
-  required: ["title", "description", "chartData", "opportunityScore", "communityDeepDive"]
+  required: ["title", "description", "chartData", "opportunityScore", "communityDeepDive", "categories"]
 };
 
 const researchReportSchema = {
@@ -152,7 +160,8 @@ const researchReportSchema = {
         weaknesses: { type: Type.ARRAY, items: { type: Type.STRING } },
         opportunities: { type: Type.ARRAY, items: { type: Type.STRING } },
         threats: { type: Type.ARRAY, items: { type: Type.STRING } }
-      }
+      },
+      required: ["strengths", "weaknesses", "opportunities", "threats"]
     },
     competitors: {
       type: Type.ARRAY,
@@ -162,7 +171,8 @@ const researchReportSchema = {
           name: { type: Type.STRING },
           price: { type: Type.STRING },
           description: { type: Type.STRING }
-        }
+        },
+        required: ["name", "price", "description"]
       }
     },
     marketSize: {
@@ -172,10 +182,12 @@ const researchReportSchema = {
         sam: { type: Type.STRING },
         som: { type: Type.STRING },
         explanation: { type: Type.STRING }
-      }
+      },
+      required: ["tam", "sam", "som", "explanation"]
     },
     verdict: { type: Type.STRING }
-  }
+  },
+  required: ["summary", "swot", "competitors", "marketSize", "verdict"]
 };
 
 const brandIdentitySchema = {
@@ -183,19 +195,23 @@ const brandIdentitySchema = {
   properties: {
     name: { type: Type.STRING },
     tagline: { type: Type.STRING },
+    logoConcept: { type: Type.STRING },
     colors: {
       type: Type.ARRAY,
       items: {
         type: Type.OBJECT,
-        properties: { name: { type: Type.STRING }, hex: { type: Type.STRING } }
+        properties: { name: { type: Type.STRING }, hex: { type: Type.STRING } },
+        required: ["name", "hex"]
       }
     },
     fontPairing: {
       type: Type.OBJECT,
-      properties: { primary: { type: Type.STRING }, secondary: { type: Type.STRING } }
+      properties: { primary: { type: Type.STRING }, secondary: { type: Type.STRING } },
+      required: ["primary", "secondary"]
     },
     voice: { type: Type.STRING }
-  }
+  },
+  required: ["name", "tagline", "logoConcept", "colors", "fontPairing", "voice"]
 };
 
 const landingPageSchema = {
@@ -208,10 +224,12 @@ const landingPageSchema = {
       type: Type.ARRAY,
       items: {
         type: Type.OBJECT,
-        properties: { title: { type: Type.STRING }, desc: { type: Type.STRING } }
+        properties: { title: { type: Type.STRING }, desc: { type: Type.STRING } },
+        required: ["title", "desc"]
       }
     }
-  }
+  },
+  required: ["headline", "subheadline", "cta", "benefits"]
 };
 
 const mvpSpecsSchema = {
@@ -220,7 +238,8 @@ const mvpSpecsSchema = {
     coreFeatures: { type: Type.ARRAY, items: { type: Type.STRING } },
     techStack: { type: Type.ARRAY, items: { type: Type.STRING } },
     userStories: { type: Type.ARRAY, items: { type: Type.STRING } }
-  }
+  },
+  required: ["coreFeatures", "techStack", "userStories"]
 };
 
 const adCreativesSchema = {
@@ -237,60 +256,34 @@ const adCreativesSchema = {
           primaryText: { type: Type.STRING },
           visualPrompt: { type: Type.STRING },
           cta: { type: Type.STRING }
-        }
+        },
+        required: ["platform", "headline", "primaryText", "visualPrompt", "cta"]
       }
     },
     targetAudience: { type: Type.ARRAY, items: { type: Type.STRING } }
-  }
+  },
+  required: ["strategy", "variants", "targetAudience"]
 };
 
 export const generateNextIdea = async (onProgress?: (log: string) => void): Promise<BusinessIdea> => {
   try {
     if (onProgress) onProgress("Initializing AI market researcher...");
 
-    // --- Step 1: Global Trend Analysis (The Macro Scan) ---
-    // Instead of random selection, we ask the AI to find what is trending right now.
-    if (onProgress) onProgress("Scanning global market data for top 10 trending sectors...");
+    // --- Step 1: Select Target Sector (Client-Side Optimization) ---
+    // We skip the API call for "Top Sectors" and pick from our highly diverse, curated list.
+    // This saves 1 API call while ensuring high variety.
+    const targetSector = DIVERSE_DOMAINS[Math.floor(Math.random() * DIVERSE_DOMAINS.length)];
     
-    let targetSector = "";
-    
-    try {
-        const sectorAnalysisResponse = await ai.models.generateContent({
-            model: MODEL_NAME,
-            contents: `Perform a Google Search to identify the top 10 fastest growing industries and emerging startup sectors for late 2024/2025.
-            
-            From these search results, select ONE specific, high-potential niche market that is suitable for a new startup (e.g., 'Sustainable Packaging', 'AI in Legal', 'Vertical Farming').
-            
-            Return ONLY the name of this specific niche as plain text. Do not include numbering or explanation.`,
-            config: {
-                tools: [{ googleSearch: {} }],
-            }
-        });
-        
-        targetSector = sectorAnalysisResponse.text ? sectorAnalysisResponse.text.trim() : "";
-        
-        // Clean up if the model returns extra punctuation
-        targetSector = targetSector.replace(/^["']|["']$/g, '').replace(/\.$/, '');
-
-    } catch (err) {
-        console.warn("Sector analysis failed, falling back to domain list.", err);
-    }
-
-    // Fallback if dynamic search fails
-    if (!targetSector || targetSector.length < 3) {
-        targetSector = FALLBACK_DOMAINS[Math.floor(Math.random() * FALLBACK_DOMAINS.length)];
-    }
-
     console.log(`Targeting sector: ${targetSector}`);
-    if (onProgress) onProgress(`Identified breakout sector: ${targetSector}`);
+    if (onProgress) onProgress(`Targeting High-Growth Sector: ${targetSector}`);
 
-
-    // --- Step 2: Deep Dive Grounding (The Micro Analysis) ---
-    if (onProgress) onProgress(`Deep diving into ${targetSector} trends...`);
+    // --- Step 2: Deep Dive Grounding (API Call #1) ---
+    // We go straight to the deep dive search.
+    if (onProgress) onProgress(`Deep diving into ${targetSector} trends & pain points...`);
     
     const searchResponse = await ai.models.generateContent({
       model: MODEL_NAME,
-      contents: `Perform a specific search for rising trends, customer complaints, and unmet needs specifically within the "${targetSector}" sector.
+      contents: `Perform a specific search for rising trends, customer complaints, and unmet needs specifically within the "${targetSector}" sector for late 2024 and 2025.
       
       Identify a specific problem that is currently unsolved or poorly solved in this niche.
       
@@ -312,7 +305,7 @@ export const generateNextIdea = async (onProgress?: (log: string) => void): Prom
 
     if (onProgress) onProgress("Analyzing search signals and identifying market gaps...");
 
-    // --- Step 3: Synthesis (The Idea Generation) ---
+    // --- Step 3: Synthesis (API Call #2) ---
     if (onProgress) onProgress("Synthesizing business concept and strategy...");
     
     const mainIdeaPromise = ai.models.generateContent({
@@ -421,9 +414,9 @@ export const generateBrandIdentity = async (idea: BusinessIdea): Promise<BrandId
       model: MODEL_NAME,
       contents: `Create a brand identity for the following startup idea: "${idea.title}".
       Description: ${idea.description}
-      Target Audience: ${idea.categories.target}
+      Target Audience: ${idea.categories?.target || 'General Audience'}
       
-      Provide a catchy startup name, a tagline, a color palette with hex codes (3-4 colors), a font pairing recommendation, and a description of the brand voice.`,
+      Provide a catchy startup name, a tagline, a text description of a logo concept, a color palette with hex codes (3-4 colors), a font pairing recommendation, and a description of the brand voice.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: brandIdentitySchema
@@ -485,7 +478,7 @@ export const generateAdCreatives = async (idea: BusinessIdea): Promise<AdCreativ
     const response = await ai.models.generateContent({
       model: MODEL_NAME,
       contents: `Generate high-converting ad creatives for: "${idea.title}".
-      Target Audience: ${idea.categories.target}
+      Target Audience: ${idea.categories?.target || 'General Audience'}
       Problem: ${idea.problemSeverity} (Pain Level)
       
       Create a 1-sentence ad strategy summary.
