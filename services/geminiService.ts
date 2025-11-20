@@ -7,8 +7,8 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const MODEL_NAME = "gemini-2.5-flash";
 
-// List of diverse domains to ensure variety in generation
-const DIVERSE_DOMAINS = [
+// Fallback domains in case dynamic search fails
+const FALLBACK_DOMAINS = [
   "HealthTech & Digital Wellness",
   "Sustainable Energy & GreenTech",
   "FinTech & Personal Wealth Management",
@@ -248,23 +248,56 @@ export const generateNextIdea = async (onProgress?: (log: string) => void): Prom
   try {
     if (onProgress) onProgress("Initializing AI market researcher...");
 
-    // Step 1: Randomly select a domain
-    const randomDomain = DIVERSE_DOMAINS[Math.floor(Math.random() * DIVERSE_DOMAINS.length)];
-    console.log(`Searching for trends in domain: ${randomDomain}`);
-    if (onProgress) onProgress(`Targeting sector: ${randomDomain}...`);
+    // --- Step 1: Global Trend Analysis (The Macro Scan) ---
+    // Instead of random selection, we ask the AI to find what is trending right now.
+    if (onProgress) onProgress("Scanning global market data for top 10 trending sectors...");
+    
+    let targetSector = "";
+    
+    try {
+        const sectorAnalysisResponse = await ai.models.generateContent({
+            model: MODEL_NAME,
+            contents: `Perform a Google Search to identify the top 10 fastest growing industries and emerging startup sectors for late 2024/2025.
+            
+            From these search results, select ONE specific, high-potential niche market that is suitable for a new startup (e.g., 'Sustainable Packaging', 'AI in Legal', 'Vertical Farming').
+            
+            Return ONLY the name of this specific niche as plain text. Do not include numbering or explanation.`,
+            config: {
+                tools: [{ googleSearch: {} }],
+            }
+        });
+        
+        targetSector = sectorAnalysisResponse.text ? sectorAnalysisResponse.text.trim() : "";
+        
+        // Clean up if the model returns extra punctuation
+        targetSector = targetSector.replace(/^["']|["']$/g, '').replace(/\.$/, '');
 
-    // Grounding - Find a current trend cluster
-    if (onProgress) onProgress("Querying Google Search for real-time trends...");
+    } catch (err) {
+        console.warn("Sector analysis failed, falling back to domain list.", err);
+    }
+
+    // Fallback if dynamic search fails
+    if (!targetSector || targetSector.length < 3) {
+        targetSector = FALLBACK_DOMAINS[Math.floor(Math.random() * FALLBACK_DOMAINS.length)];
+    }
+
+    console.log(`Targeting sector: ${targetSector}`);
+    if (onProgress) onProgress(`Identified breakout sector: ${targetSector}`);
+
+
+    // --- Step 2: Deep Dive Grounding (The Micro Analysis) ---
+    if (onProgress) onProgress(`Deep diving into ${targetSector} trends...`);
+    
     const searchResponse = await ai.models.generateContent({
       model: MODEL_NAME,
-      contents: `Perform a search for rising trends, consumer complaints, and emerging market opportunities specifically within the "${randomDomain}" sector for late 2024 and 2025.
+      contents: `Perform a specific search for rising trends, customer complaints, and unmet needs specifically within the "${targetSector}" sector.
       
-      Identify a specific problem that is currently unsolved or poorly solved.
+      Identify a specific problem that is currently unsolved or poorly solved in this niche.
       
       Return a summary text describing:
-      1. The Primary Trend in ${randomDomain}.
-      2. Key problems in this sector based on search results.
-      3. Emerging keywords.
+      1. The Primary Trend in ${targetSector}.
+      2. Key problems/pain points based on search results.
+      3. Emerging keywords associated with this trend.
       `,
       config: {
         tools: [{ googleSearch: {} }],
@@ -279,17 +312,18 @@ export const generateNextIdea = async (onProgress?: (log: string) => void): Prom
 
     if (onProgress) onProgress("Analyzing search signals and identifying market gaps...");
 
-    // Step 2: Generate Main Idea
+    // --- Step 3: Synthesis (The Idea Generation) ---
     if (onProgress) onProgress("Synthesizing business concept and strategy...");
+    
     const mainIdeaPromise = ai.models.generateContent({
       model: MODEL_NAME,
-      contents: `You are an expert venture capitalist. Based on this specific market research for the ${randomDomain} sector:
+      contents: `You are an expert venture capitalist. Based on this specific market research for the ${targetSector} sector:
       "${trendContext}"
       
       Create a comprehensive "Idea of the Day" profile.
       It should be a specific startup idea that solves a problem identified in the research.
       
-      For "oneLiner": Generate a concise 40-50 word summary paragraph. Explain the core problem and the solution mechanism clearly. It should serve as a pitch hook.
+      For "oneLiner": Generate a detailed 40-50 word summary paragraph. Explain the core problem and the solution mechanism clearly. It should serve as a pitch hook.
       
       For "executionPlan": Provide a detailed list of 5-7 actionable steps to launch and scale this idea. Be specific (e.g., "Develop MVP", "Launch on ProductHunt", "Partnerships").
 
