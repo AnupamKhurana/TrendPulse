@@ -402,6 +402,8 @@ const generateWithGemini = async (onProgress?: (log: string) => void): Promise<B
       For "currentVolume": Provide a SHORT numeric estimate string (e.g. "10k", "5.5M", "500k"). Do not put long text here.
       For "volumeNote": Provide the qualitative context for the volume here (e.g., "Underserved market", "Rapidly growing interest").
 
+      For "opportunityScore", "problemSeverity", "feasibilityScore", and "timingScore": Provide an integer score between 1 and 10 (where 10 is best/highest). Ensure you strictly adhere to the 1-10 scale.
+
       For the "businessFits" array, generate exactly 4 items with these exact labels:
       1. "Market Need"
       2. "Innovation"
@@ -527,10 +529,10 @@ const generateWithLocalAI = async (onProgress?: (log: string) => void): Promise<
                 {"year": "2024", "volume": 80},
                 {"year": "2025", "volume": 150}
             ],
-            "opportunityScore": 8,
-            "problemSeverity": 9,
-            "feasibilityScore": 7,
-            "timingScore": 8,
+            "opportunityScore": 8, // Score 1-10
+            "problemSeverity": 9, // Score 1-10
+            "feasibilityScore": 7, // Score 1-10
+            "timingScore": 8, // Score 1-10
             "businessFits": [
                 { "label": "Market Need", "value": "High", "subtext": "...", "color": "text-emerald-500", "tooltip": "..." },
                 { "label": "Innovation", "value": "High", "subtext": "...", "color": "text-blue-500", "tooltip": "..." },
