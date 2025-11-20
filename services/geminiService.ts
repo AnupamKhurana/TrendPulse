@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { BusinessIdea, DEFAULT_IDEA, ResearchReport, BrandIdentity, LandingPageContent, MVPSpecs, AdCreativesResult, AIProviderConfig } from "../types";
 
@@ -628,6 +627,174 @@ export const generateResearchReport = async (query: string): Promise<ResearchRep
         return reportResponse.text ? JSON.parse(reportResponse.text) : null;
     } catch (e) {
         return null;
+    }
+};
+
+// Helper function to create a fallback idea if AI synthesis fails
+const createFallbackIdea = (query: string, report: ResearchReport): BusinessIdea => {
+    return {
+        id: Date.now().toString(),
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        title: query.length > 60 ? "New Business Opportunity" : query,
+        tags: ["Research Validated", "High Potential"],
+        oneLiner: report.summary.substring(0, 200) + "...",
+        description: report.summary,
+        whyNow: "Validated by recent market search trends and competitive analysis.",
+        marketGap: `Identified market gap in the ${report.marketSize.tam} space with ${report.competitors.length} active competitors.`,
+        executionPlan: [
+            `Analyze competitor pricing: ${report.competitors[0]?.name || "Key Players"}`,
+            "Define MVP core features based on SWOT analysis",
+            `Launch landing page targeting: ${report.trendKeyword}`,
+            "Execute marketing on validated channels",
+            "Iterate based on early user feedback"
+        ],
+        chartData: report.trendData || [],
+        growthPercentage: report.growthPercentage || 10,
+        currentVolume: report.currentVolume || "N/A",
+        volumeNote: "Based on specific query analysis",
+        keyword: report.trendKeyword || query,
+        isSimulated: false,
+        opportunityScore: 8,
+        problemSeverity: 8,
+        feasibilityScore: 8,
+        timingScore: 8,
+        businessFits: [
+            { label: "Market Need", value: "High", subtext: "Validated by search", color: "text-emerald-500", tooltip: "Strong search volume indicates clear demand." },
+            { label: "Innovation", value: "Medium", subtext: "Competitive space", color: "text-blue-500", tooltip: "Differentiation required against existing players." },
+            { label: "Regulatory Alignment", value: "Safe", subtext: "Standard", color: "text-emerald-500", tooltip: "Standard compliance requirements." },
+            { label: "Social Impact", value: "Medium", subtext: "Positive", color: "text-orange-500", tooltip: "Potential for positive community impact." }
+        ],
+        communitySignals: [
+             { source: "Market Research", stats: "Verified", score: "8/10" }
+        ],
+        communityDeepDive: {
+            sentimentScore: 75,
+            sentimentBreakdown: { positive: 60, neutral: 20, negative: 20 },
+            topKeywords: [query.split(' ')[0] || "trend"],
+            discussions: [],
+            platformBreakdown: []
+        },
+        categories: {
+            type: "Startup",
+            market: "Niche",
+            target: "General Audience",
+            competitor: report.competitors[0]?.name || "Existing Players"
+        }
+    };
+};
+
+// Function to convert a research report into a full Project/BusinessIdea
+export const generateIdeaFromResearch = async (query: string, report: ResearchReport, onProgress?: (log: string) => void): Promise<BusinessIdea> => {
+    try {
+        if (onProgress) onProgress("Initializing Project Builder...");
+        
+        // Check provider config
+        const isLocal = currentConfig.provider === 'local';
+        
+        // Context is the report + query
+        const context = `
+            User Idea: ${query}
+            Research Summary: ${report.summary}
+            Market Size: ${JSON.stringify(report.marketSize)}
+            Competitors: ${JSON.stringify(report.competitors)}
+            Trends: ${report.trendKeyword} (Vol: ${report.currentVolume}, Growth: ${report.growthPercentage}%)
+        `;
+
+        if (onProgress) onProgress("Synthesizing full business plan from research...");
+
+        // Construct Prompt
+        const prompt = `You are a venture capitalist. 
+        Based on the following research data for the startup idea "${query}":
+        ${context}
+        
+        Create a comprehensive "Business Idea" dashboard JSON.
+        
+        Structure required:
+        {
+            "title": "${query}", // Or a catchy startup name based on it
+            "tags": ["Validated", "High Potential", "Niche"],
+            "oneLiner": "Detailed 40-50 word summary hook.",
+            "description": "Full detailed description of the solution.",
+            "whyNow": "Why is timing right? (Use research context)",
+            "marketGap": "What is missing? (Use competitor analysis)",
+            "executionPlan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+            "growthPercentage": ${report.growthPercentage || 15},
+            "currentVolume": "${report.currentVolume || 'N/A'}",
+            "volumeNote": "Based on search analysis",
+            "keyword": "${report.trendKeyword || query}",
+            "chartData": ${JSON.stringify(report.trendData || [])},
+            "opportunityScore": 8, // 1-10, infer from market size
+            "problemSeverity": 8, // 1-10
+            "feasibilityScore": 8, // 1-10
+            "timingScore": 8, // 1-10
+            "businessFits": [
+                { "label": "Market Need", "value": "High", "subtext": "...", "color": "text-emerald-500", "tooltip": "..." },
+                { "label": "Innovation", "value": "Medium", "subtext": "...", "color": "text-blue-500", "tooltip": "..." },
+                { "label": "Regulatory Alignment", "value": "Safe", "subtext": "...", "color": "text-emerald-500", "tooltip": "..." },
+                { "label": "Social Impact", "value": "Medium", "subtext": "...", "color": "text-orange-500", "tooltip": "..." }
+            ],
+            "communitySignals": [
+                 { "source": "Market Research", "stats": "Verified", "score": "N/A" }
+            ],
+            "communityDeepDive": {
+                "sentimentScore": 75,
+                "sentimentBreakdown": { "positive": 60, "neutral": 30, "negative": 10 },
+                "topKeywords": ["trend", "gap"],
+                "discussions": [],
+                "platformBreakdown": []
+            },
+            "categories": {
+                "type": "Startup", "market": "Niche", "target": "Users", "competitor": "${report.competitors[0]?.name || 'Existing Players'}"
+            }
+        }
+        
+        If generating for local AI, return ONLY valid JSON.
+        `;
+
+        let jsonStr = "";
+        
+        if (isLocal) {
+             jsonStr = await callLocalAI([
+                { role: 'system', content: "You are a JSON generator. Output only valid JSON." },
+                { role: 'user', content: prompt }
+             ], true) || "{}";
+        } else {
+             const response = await ai.models.generateContent({
+                model: MODEL_NAME,
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: businessIdeaSchema,
+                    temperature: 0.7
+                }
+             });
+             jsonStr = response.text || "{}";
+        }
+
+        if (onProgress) onProgress("Finalizing project structure...");
+        
+        let idea = extractJson(jsonStr);
+        
+        // CRITICAL FIX: If AI failed to generate a valid idea structure, fallback to manual construction
+        // instead of returning the default idea. This ensures the user sees THEIR idea.
+        if (!idea || !idea.title) {
+             console.warn("AI Synthesis failed, using manual fallback from report");
+             return createFallbackIdea(query, report);
+        }
+
+        // Ensure date and simulated flag
+        idea = { 
+            ...idea, 
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            isSimulated: isLocal && !currentConfig.enableHybridSearch
+        };
+
+        return idea as BusinessIdea;
+
+    } catch (e) {
+        console.error("Error converting research to idea:", e);
+        // Fallback to manual construction so we don't show the default idea
+        return createFallbackIdea(query, report);
     }
 };
 

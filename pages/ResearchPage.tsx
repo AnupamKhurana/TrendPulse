@@ -1,13 +1,18 @@
 
 import React, { useState } from 'react';
-import { Search, Sparkles, FileText, BarChart, CheckCircle, XCircle, AlertTriangle, Users, TrendingUp, Target, DollarSign, Shield, ArrowRight } from 'lucide-react';
-import { generateResearchReport } from '../services/geminiService';
-import { ResearchReport } from '../types';
+import { Search, Sparkles, FileText, BarChart, CheckCircle, XCircle, AlertTriangle, Users, TrendingUp, Target, DollarSign, Shield, ArrowRight, Loader2 } from 'lucide-react';
+import { generateResearchReport, generateIdeaFromResearch } from '../services/geminiService';
+import { ResearchReport, BusinessIdea } from '../types';
 import { TrendChart } from '../components/TrendChart';
 
-export const ResearchPage: React.FC = () => {
+interface ResearchPageProps {
+  onIdeaValidated?: (idea: BusinessIdea) => void;
+}
+
+export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) => {
     const [query, setQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
+    const [isConverting, setIsConverting] = useState(false);
     const [report, setReport] = useState<ResearchReport | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +35,21 @@ export const ResearchPage: React.FC = () => {
             setError("An error occurred during research.");
         } finally {
             setIsSearching(false);
+        }
+    };
+
+    const handleConvertToProject = async () => {
+        if (!report || !query || !onIdeaValidated) return;
+        
+        setIsConverting(true);
+        try {
+            const idea = await generateIdeaFromResearch(query, report);
+            onIdeaValidated(idea);
+        } catch (e) {
+            console.error(e);
+            setError("Failed to convert research to project.");
+        } finally {
+            setIsConverting(false);
         }
     };
 
@@ -103,9 +123,23 @@ export const ResearchPage: React.FC = () => {
                         </div>
                         <h2 className="text-2xl font-bold text-white">Market Viability Report</h2>
                      </div>
-                     <div className="bg-emerald-800/50 border border-emerald-700 rounded-lg px-4 py-2 flex items-center">
-                        <span className="text-emerald-200 text-xs font-bold uppercase mr-3">Verdict</span>
-                        <span className="text-white font-bold">{report.verdict}</span>
+                     
+                     <div className="flex flex-col md:flex-row items-center gap-4">
+                        <div className="bg-emerald-800/50 border border-emerald-700 rounded-lg px-4 py-2 flex items-center">
+                            <span className="text-emerald-200 text-xs font-bold uppercase mr-3">Verdict</span>
+                            <span className="text-white font-bold">{report.verdict}</span>
+                        </div>
+                        
+                        {onIdeaValidated && (
+                            <button 
+                                onClick={handleConvertToProject} 
+                                disabled={isConverting}
+                                className="bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center shadow-lg disabled:opacity-70 disabled:cursor-wait"
+                            >
+                                {isConverting ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Sparkles className="w-4 h-4 mr-2 text-emerald-600"/>}
+                                {isConverting ? "Building..." : "Launch Project"}
+                            </button>
+                        )}
                      </div>
                 </div>
                 <div className="p-8">

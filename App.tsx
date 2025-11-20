@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { IdeaHero } from './components/IdeaHero';
@@ -85,6 +84,14 @@ const App: React.FC = () => {
       setCurrentPage('home');
   };
 
+  const handleIdeaValidated = (idea: BusinessIdea) => {
+      // When a user validates an idea in ResearchPage, we add it to the main flow
+      const ideaWithId = { ...idea, id: Date.now().toString() };
+      setIdeaHistory(prev => [...prev, ideaWithId]);
+      setCurrentIdeaIndex(ideaHistory.length); // Point to this new idea
+      setCurrentPage('home'); // Navigate to dashboard
+  };
+
   const renderPage = () => {
     switch (currentPage) {
         case 'pricing':
@@ -94,15 +101,15 @@ const App: React.FC = () => {
         case 'signup':
             return <AuthPage mode="signup" />;
         case 'build':
-            return <BuildPage idea={currentIdea} />;
+            return <BuildPage idea={currentIdea} key={currentIdea.id || 'build'} />;
         case 'analysis':
-            return <AnalysisPage idea={currentIdea} />;
+            return <AnalysisPage idea={currentIdea} key={currentIdea.id || 'analysis'} />;
         case 'research':
-            return <ResearchPage />;
+            return <ResearchPage onIdeaValidated={handleIdeaValidated} />;
         case 'saved':
             return <SavedPage savedIdeas={savedIdeas} onDelete={handleDeleteSaved} onView={handleViewSaved} />;
         case 'signals':
-            return <SignalsPage idea={currentIdea} />;
+            return <SignalsPage idea={currentIdea} key={currentIdea.id || 'signals'} />;
         case 'home':
         default:
             return (
@@ -130,6 +137,7 @@ const App: React.FC = () => {
                       isLoading={isLoading} 
                       onNavigate={handleNavigate}
                       onSave={handleSaveIdea}
+                      key={currentIdea.id || 'hero'}
                     />
                 </div>
             );
