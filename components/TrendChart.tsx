@@ -10,45 +10,55 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { ChartDataPoint } from '../types';
+import { Search } from 'lucide-react';
 
 interface TrendChartProps {
   data: ChartDataPoint[];
   keyword: string;
   currentVolume: string;
   growth: number;
+  volumeNote?: string;
 }
 
-export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVolume, growth }) => {
+export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVolume, growth, volumeNote }) => {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-      <div className="flex justify-between items-start mb-6">
-        <div className="bg-gray-50 rounded-lg px-3 py-2 border border-gray-100 flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">Keyword:</span>
-            <span className="text-sm text-gray-900 font-medium">{keyword}</span>
-            <span className="ml-1 text-gray-400">
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            </span>
-        </div>
-        <div className="text-right">
-            <div className="text-xl font-bold text-emerald-600">{currentVolume}</div>
-            <div className="text-xs text-gray-500">Volume <span className="text-gray-300">ⓘ</span></div>
-        </div>
-        <div className="text-right ml-4">
-            <div className="text-xl font-bold text-emerald-500">+{growth}%</div>
-            <div className="text-xs text-gray-500">Growth <span className="text-gray-300">ⓘ</span></div>
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm h-full flex flex-col relative">
+      <div className="flex justify-between items-start mb-2 gap-2">
+         <div className="flex-shrink-0">
+            <h3 className="text-sm font-bold text-gray-900 flex items-center">
+                <Search className="w-4 h-4 mr-2 text-emerald-500" /> Search Interest
+            </h3>
+            <p className="text-xs text-gray-500 mt-1">Annual Google Search Volume</p>
+         </div>
+         
+         <div className="bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100 flex items-center gap-2 max-w-[60%]">
+            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide whitespace-nowrap hidden sm:inline">Keyword:</span>
+            <span className="text-sm text-gray-900 font-medium truncate" title={keyword}>{keyword}</span>
         </div>
       </div>
 
-      <div className="h-[250px] w-full">
+      <div className="flex items-end gap-6 mb-6 border-b border-gray-50 pb-4">
+        <div>
+            <div className="flex items-start">
+                <div className="text-2xl font-bold text-gray-900">{currentVolume}</div>
+                {volumeNote && <span className="text-gray-400 text-xs ml-0.5 font-medium">*</span>}
+            </div>
+            <div className="text-[10px] uppercase tracking-wide text-gray-400 font-bold">Current Vol</div>
+        </div>
+        <div>
+            <div className="text-2xl font-bold text-emerald-500">+{growth}%</div>
+            <div className="text-[10px] uppercase tracking-wide text-gray-400 font-bold">YoY Growth</div>
+        </div>
+      </div>
+
+      <div className="flex-grow w-full min-h-[150px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
             margin={{
               top: 10,
               right: 0,
-              left: -60,
+              left: -20,
               bottom: 0,
             }}
           >
@@ -63,16 +73,36 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
                 dataKey="year" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{fontSize: 12, fill: '#9CA3AF'}} 
+                tick={{fontSize: 11, fill: '#9CA3AF'}} 
                 dy={10}
             />
             <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{fontSize: 12, fill: '#9CA3AF'}} 
+                tick={{fontSize: 11, fill: '#9CA3AF'}} 
             />
             <Tooltip 
-                contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                cursor={{ stroke: '#10B981', strokeWidth: 1, strokeDasharray: '4 4' }}
+                content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                    return (
+                        <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl">
+                            <p className="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">{label}</p>
+                            <p className="text-emerald-600 font-bold text-lg mb-2">
+                                {payload[0].value} <span className="text-xs font-normal text-gray-500">searches</span>
+                            </p>
+                            <div className="pt-2 border-t border-gray-50">
+                                <div className="flex items-center gap-1 mb-1">
+                                    <Search className="w-3 h-3 text-gray-400" />
+                                    <span className="text-[10px] text-gray-400 uppercase font-bold">Trend Keyword</span>
+                                </div>
+                                <p className="text-xs text-gray-800 font-medium leading-tight max-w-[180px]">{keyword}</p>
+                            </div>
+                        </div>
+                    );
+                    }
+                    return null;
+                }}
             />
             <Area 
                 type="monotone" 
@@ -81,10 +111,18 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
                 strokeWidth={2} 
                 fillOpacity={1} 
                 fill="url(#colorVolume)" 
+                animationDuration={1500}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Footer Note */}
+      {volumeNote && (
+          <div className="mt-2 pt-2 border-t border-gray-50 text-[10px] text-gray-400 italic leading-snug">
+              * {volumeNote}
+          </div>
+      )}
     </div>
   );
 };

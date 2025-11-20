@@ -53,6 +53,7 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ idea }) => {
                     keyword={idea.keyword} 
                     currentVolume={idea.currentVolume}
                     growth={idea.growthPercentage}
+                    volumeNote={idea.volumeNote}
                 />
             </section>
 
@@ -87,7 +88,18 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ idea }) => {
                     <Check className="w-5 h-5 mr-2 text-emerald-600" /> Execution Strategy
                 </h3>
                  <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-100 text-emerald-900 leading-relaxed">
-                    {idea.executionPlan}
+                    <ul className="space-y-4">
+                        {Array.isArray(idea.executionPlan) ? idea.executionPlan.map((step, i) => (
+                            <li key={i} className="flex items-start">
+                                <div className="flex-shrink-0 mt-0.5 bg-emerald-200 rounded-full p-0.5 mr-3">
+                                    <Check className="w-3 h-3 text-emerald-800" />
+                                </div>
+                                <span>{step}</span>
+                            </li>
+                        )) : (
+                            <li>{idea.executionPlan}</li>
+                        )}
+                    </ul>
                  </div>
             </section>
 

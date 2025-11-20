@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { BusinessIdea, DEFAULT_IDEA, ResearchReport } from "../types";
+import { BusinessIdea, DEFAULT_IDEA, ResearchReport, BrandIdentity, LandingPageContent, MVPSpecs, AdCreativesResult } from "../types";
 
 // Initialize Gemini Client
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -52,9 +52,14 @@ const businessIdeaSchema = {
     description: { type: Type.STRING },
     whyNow: { type: Type.STRING },
     marketGap: { type: Type.STRING },
-    executionPlan: { type: Type.STRING },
+    executionPlan: { 
+        type: Type.ARRAY, 
+        items: { type: Type.STRING },
+        description: "A detailed list of 5-7 actionable steps for executing the idea."
+    },
     growthPercentage: { type: Type.NUMBER },
-    currentVolume: { type: Type.STRING },
+    currentVolume: { type: Type.STRING, description: "Short string like '10k' or '5.5M'" },
+    volumeNote: { type: Type.STRING, description: "Contextual note about the volume, e.g. 'Underserved market'" },
     keyword: { type: Type.STRING },
     chartData: chartDataSchema,
     opportunityScore: { type: Type.NUMBER },
@@ -69,7 +74,8 @@ const businessIdeaSchema = {
           label: { type: Type.STRING },
           value: { type: Type.STRING },
           subtext: { type: Type.STRING },
-          color: { type: Type.STRING }
+          color: { type: Type.STRING },
+          tooltip: { type: Type.STRING }
         }
       }
     },
@@ -84,6 +90,44 @@ const businessIdeaSchema = {
             }
         }
     },
+    communityDeepDive: {
+        type: Type.OBJECT,
+        properties: {
+            sentimentScore: { type: Type.NUMBER },
+            sentimentBreakdown: {
+                type: Type.OBJECT,
+                properties: {
+                    positive: { type: Type.NUMBER },
+                    neutral: { type: Type.NUMBER },
+                    negative: { type: Type.NUMBER }
+                }
+            },
+            topKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+            discussions: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        author: { type: Type.STRING },
+                        text: { type: Type.STRING },
+                        platform: { type: Type.STRING },
+                        sentiment: { type: Type.STRING, enum: ['positive', 'neutral', 'negative'] }
+                    }
+                }
+            },
+            platformBreakdown: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        name: { type: Type.STRING },
+                        activityLevel: { type: Type.STRING, enum: ['High', 'Medium', 'Low'] },
+                        userIntent: { type: Type.STRING }
+                    }
+                }
+            }
+        }
+    },
     categories: {
         type: Type.OBJECT,
         properties: {
@@ -94,7 +138,7 @@ const businessIdeaSchema = {
         }
     }
   },
-  required: ["title", "description", "chartData", "opportunityScore"]
+  required: ["title", "description", "chartData", "opportunityScore", "communityDeepDive"]
 };
 
 const researchReportSchema = {
@@ -134,13 +178,83 @@ const researchReportSchema = {
   }
 };
 
-export const generateNextIdea = async (): Promise<BusinessIdea> => {
+const brandIdentitySchema = {
+  type: Type.OBJECT,
+  properties: {
+    name: { type: Type.STRING },
+    tagline: { type: Type.STRING },
+    colors: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: { name: { type: Type.STRING }, hex: { type: Type.STRING } }
+      }
+    },
+    fontPairing: {
+      type: Type.OBJECT,
+      properties: { primary: { type: Type.STRING }, secondary: { type: Type.STRING } }
+    },
+    voice: { type: Type.STRING }
+  }
+};
+
+const landingPageSchema = {
+  type: Type.OBJECT,
+  properties: {
+    headline: { type: Type.STRING },
+    subheadline: { type: Type.STRING },
+    cta: { type: Type.STRING },
+    benefits: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: { title: { type: Type.STRING }, desc: { type: Type.STRING } }
+      }
+    }
+  }
+};
+
+const mvpSpecsSchema = {
+  type: Type.OBJECT,
+  properties: {
+    coreFeatures: { type: Type.ARRAY, items: { type: Type.STRING } },
+    techStack: { type: Type.ARRAY, items: { type: Type.STRING } },
+    userStories: { type: Type.ARRAY, items: { type: Type.STRING } }
+  }
+};
+
+const adCreativesSchema = {
+  type: Type.OBJECT,
+  properties: {
+    strategy: { type: Type.STRING },
+    variants: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          platform: { type: Type.STRING },
+          headline: { type: Type.STRING },
+          primaryText: { type: Type.STRING },
+          visualPrompt: { type: Type.STRING },
+          cta: { type: Type.STRING }
+        }
+      }
+    },
+    targetAudience: { type: Type.ARRAY, items: { type: Type.STRING } }
+  }
+};
+
+export const generateNextIdea = async (onProgress?: (log: string) => void): Promise<BusinessIdea> => {
   try {
-    // Step 1: Randomly select a domain to focus the search on
+    if (onProgress) onProgress("Initializing AI market researcher...");
+
+    // Step 1: Randomly select a domain
     const randomDomain = DIVERSE_DOMAINS[Math.floor(Math.random() * DIVERSE_DOMAINS.length)];
     console.log(`Searching for trends in domain: ${randomDomain}`);
+    if (onProgress) onProgress(`Targeting sector: ${randomDomain}...`);
 
-    // Grounding - Find a current trend cluster within the specific domain
+    // Grounding - Find a current trend cluster
+    if (onProgress) onProgress("Querying Google Search for real-time trends...");
     const searchResponse = await ai.models.generateContent({
       model: MODEL_NAME,
       contents: `Perform a search for rising trends, consumer complaints, and emerging market opportunities specifically within the "${randomDomain}" sector for late 2024 and 2025.
@@ -163,7 +277,10 @@ export const generateNextIdea = async (): Promise<BusinessIdea> => {
       return DEFAULT_IDEA;
     }
 
+    if (onProgress) onProgress("Analyzing search signals and identifying market gaps...");
+
     // Step 2: Generate Main Idea
+    if (onProgress) onProgress("Synthesizing business concept and strategy...");
     const mainIdeaPromise = ai.models.generateContent({
       model: MODEL_NAME,
       contents: `You are an expert venture capitalist. Based on this specific market research for the ${randomDomain} sector:
@@ -171,6 +288,28 @@ export const generateNextIdea = async (): Promise<BusinessIdea> => {
       
       Create a comprehensive "Idea of the Day" profile.
       It should be a specific startup idea that solves a problem identified in the research.
+      
+      For "oneLiner": Generate a concise 40-50 word summary paragraph. Explain the core problem and the solution mechanism clearly. It should serve as a pitch hook.
+      
+      For "executionPlan": Provide a detailed list of 5-7 actionable steps to launch and scale this idea. Be specific (e.g., "Develop MVP", "Launch on ProductHunt", "Partnerships").
+
+      For "currentVolume": Provide a SHORT numeric estimate string (e.g. "10k", "5.5M", "500k"). Do not put long text here.
+      For "volumeNote": Provide the qualitative context for the volume here (e.g., "Underserved market", "Rapidly growing interest").
+
+      For the "businessFits" array, generate exactly 4 items with these exact labels:
+      1. "Market Need"
+      2. "Innovation"
+      3. "Regulatory Alignment"
+      4. "Social Impact"
+      
+      Provide a 'tooltip' string for each that explains *why* it has that score.
+
+      For "communityDeepDive", simulate realistic social listening data:
+      - Generate a realistic sentiment score (0-100).
+      - Generate 3 "Voice of Customer" quotes that sound like real forum posts (Reddit/Twitter).
+      - List top keywords people use when complaining about this problem.
+      - Breakdown activity level on major platforms.
+      
       Ensure the tone is professional, exciting, and data-driven.
       `,
       config: {
@@ -181,8 +320,17 @@ export const generateNextIdea = async (): Promise<BusinessIdea> => {
     });
 
     const mainIdeaRes = await mainIdeaPromise;
-    const mainIdea = mainIdeaRes.text ? JSON.parse(mainIdeaRes.text) : DEFAULT_IDEA;
+    if (onProgress) onProgress("Calculating opportunity scores and metrics...");
+    
+    let mainIdea = mainIdeaRes.text ? JSON.parse(mainIdeaRes.text) : DEFAULT_IDEA;
 
+    // Add current date to the generated idea
+    mainIdea = {
+        ...mainIdea,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+    
+    if (onProgress) onProgress("Finalizing report generation...");
     return mainIdea;
 
   } catch (error) {
@@ -229,6 +377,99 @@ export const generateResearchReport = async (query: string): Promise<ResearchRep
     return null;
   } catch (error) {
     console.error("Error generating research report:", error);
+    return null;
+  }
+};
+
+export const generateBrandIdentity = async (idea: BusinessIdea): Promise<BrandIdentity | null> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: `Create a brand identity for the following startup idea: "${idea.title}".
+      Description: ${idea.description}
+      Target Audience: ${idea.categories.target}
+      
+      Provide a catchy startup name, a tagline, a color palette with hex codes (3-4 colors), a font pairing recommendation, and a description of the brand voice.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: brandIdentitySchema
+      }
+    });
+    return response.text ? JSON.parse(response.text) : null;
+  } catch (e) {
+    console.error("Error generating brand:", e);
+    return null;
+  }
+};
+
+export const generateLandingPage = async (idea: BusinessIdea): Promise<LandingPageContent | null> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: `Write high-converting landing page copy for: "${idea.title}".
+      Problem: ${idea.oneLiner}
+      Solution: ${idea.description}
+      
+      Include a compelling H1 Headline, H2 Subheadline, Call to Action text, and 3 key benefits.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: landingPageSchema
+      }
+    });
+    return response.text ? JSON.parse(response.text) : null;
+  } catch (e) {
+    console.error("Error generating landing page:", e);
+    return null;
+  }
+};
+
+export const generateMVPSpecs = async (idea: BusinessIdea): Promise<MVPSpecs | null> => {
+  try {
+    // Join the execution plan array into a string for context
+    const planContext = Array.isArray(idea.executionPlan) ? idea.executionPlan.join('\n') : idea.executionPlan;
+
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: `Outline the MVP (Minimum Viable Product) specifications for: "${idea.title}".
+      Execution Plan: ${planContext}
+      
+      List the core features required for V1, suggested technology stack (modern web/mobile), and 3-5 key user stories.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: mvpSpecsSchema
+      }
+    });
+    return response.text ? JSON.parse(response.text) : null;
+  } catch (e) {
+    console.error("Error generating specs:", e);
+    return null;
+  }
+};
+
+export const generateAdCreatives = async (idea: BusinessIdea): Promise<AdCreativesResult | null> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: `Generate high-converting ad creatives for: "${idea.title}".
+      Target Audience: ${idea.categories.target}
+      Problem: ${idea.problemSeverity} (Pain Level)
+      
+      Create a 1-sentence ad strategy summary.
+      Then create 3 ad variants:
+      1. Facebook/Instagram (Visual + Story)
+      2. LinkedIn (Professional + Value)
+      3. Google Search (Keyword + Direct)
+      
+      For each, provide the Headline, Primary Text (Body), CTA, and a 'visualPrompt' describing the image/video to generation.
+      Also list 3-5 target audience keywords/interests.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: adCreativesSchema
+      }
+    });
+    return response.text ? JSON.parse(response.text) : null;
+  } catch (e) {
+    console.error("Error generating ads:", e);
     return null;
   }
 };

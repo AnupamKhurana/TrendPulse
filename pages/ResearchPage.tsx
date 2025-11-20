@@ -39,7 +39,7 @@ export const ResearchPage: React.FC = () => {
             <Sparkles className="w-6 h-6" />
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">AI Market Researcher</h1>
-        <p className="text-gray-600 text-lg">Validate your own idea. Our agent performs a 40-step analysis of competitors, keywords, and market size.</p>
+        <p className="text-gray-600 text-lg">Validate your vision with precision. Our agent performs a comprehensive market scan, analyzing competitors, keywords, and growth potential to ensure you build what people actually want.</p>
       </div>
 
       {/* Search Form */}
