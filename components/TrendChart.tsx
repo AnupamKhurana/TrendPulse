@@ -7,7 +7,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Label
 } from 'recharts';
 import { ChartDataPoint } from '../types';
 import { Search, Bot } from 'lucide-react';
@@ -18,7 +19,7 @@ interface TrendChartProps {
   currentVolume: string;
   growth: number;
   volumeNote?: string;
-  isSimulated?: boolean; // New prop
+  isSimulated?: boolean;
 }
 
 // Utility to format large numbers
@@ -34,6 +35,8 @@ const formatTooltipValue = (num: number) => {
 }
 
 export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVolume, growth, volumeNote, isSimulated }) => {
+  const primaryColor = isSimulated ? "#A855F7" : "#10B981"; // Purple for Simulated, Emerald for Real
+  
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm h-full flex flex-col relative">
       <div className="flex justify-between items-start mb-2 gap-2">
@@ -75,16 +78,16 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
           <AreaChart
             data={data}
             margin={{
-              top: 10,
+              top: 20,
               right: 10,
-              left: 0, // Adjusted to prevent truncation
+              left: 0, 
               bottom: 0,
             }}
           >
             <defs>
               <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={isSimulated ? "#A855F7" : "#10B981"} stopOpacity={0.2}/>
-                <stop offset="95%" stopColor={isSimulated ? "#A855F7" : "#10B981"} stopOpacity={0}/>
+                <stop offset="5%" stopColor={primaryColor} stopOpacity={0.15}/>
+                <stop offset="95%" stopColor={primaryColor} stopOpacity={0}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
@@ -92,27 +95,39 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
                 dataKey="year" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{fontSize: 11, fill: '#9CA3AF'}} 
+                tick={{fontSize: 11, fill: '#9CA3AF', fontFamily: 'Plus Jakarta Sans, sans-serif'}} 
                 dy={10}
             />
             <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{fontSize: 10, fill: '#9CA3AF'}} 
+                tick={{fontSize: 10, fill: '#9CA3AF', fontFamily: 'Plus Jakarta Sans, sans-serif'}} 
                 tickFormatter={formatYAxis}
                 width={40}
-            />
+            >
+                <Label 
+                    value="Volume" 
+                    position="insideTopLeft" 
+                    offset={0}
+                    dy={-25}
+                    dx={0}
+                    style={{ fill: '#9CA3AF', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', fontFamily: 'Plus Jakarta Sans, sans-serif' }} 
+                />
+            </YAxis>
             <Tooltip 
-                cursor={{ stroke: isSimulated ? '#A855F7' : '#10B981', strokeWidth: 1, strokeDasharray: '4 4' }}
+                cursor={{ stroke: primaryColor, strokeWidth: 1, strokeDasharray: '4 4' }}
                 content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                     const val = payload[0].value as number;
                     return (
-                        <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl">
+                        <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl font-sans">
                             <p className="text-[10px] uppercase tracking-wide text-gray-400 font-bold mb-1">{label}</p>
-                            <p className={`${isSimulated ? 'text-purple-600' : 'text-emerald-600'} font-bold text-lg mb-2`}>
-                                {formatTooltipValue(val)} <span className="text-xs font-normal text-gray-500">{isSimulated ? 'simulated' : 'searches'}</span>
-                            </p>
+                            <div className="mb-2">
+                                <span className="text-[10px] text-gray-400 uppercase font-bold mr-1">Volume:</span>
+                                <span className={`${isSimulated ? 'text-purple-600' : 'text-emerald-600'} font-bold text-lg`}>
+                                    {formatTooltipValue(val)}
+                                </span>
+                            </div>
                             <div className="pt-2 border-t border-gray-50">
                                 <div className="flex items-center gap-1 mb-1">
                                     {isSimulated ? <Bot className="w-3 h-3 text-gray-400" /> : <Search className="w-3 h-3 text-gray-400" />}
@@ -129,11 +144,12 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
             <Area 
                 type="monotone" 
                 dataKey="volume" 
-                stroke={isSimulated ? "#A855F7" : "#10B981"} 
+                stroke={primaryColor} 
                 strokeWidth={2} 
                 fillOpacity={1} 
                 fill="url(#colorVolume)" 
                 animationDuration={1500}
+                activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff', fill: primaryColor }}
             />
           </AreaChart>
         </ResponsiveContainer>

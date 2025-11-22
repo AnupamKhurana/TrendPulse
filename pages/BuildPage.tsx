@@ -11,15 +11,16 @@ interface BuildPageProps {
 type ToolType = 'brand' | 'landing' | 'mvp' | 'ads' | null;
 
 export const BuildPage: React.FC<BuildPageProps> = ({ idea }) => {
-  const [activeTool, setActiveTool] = useState<ToolType>(null);
+  // Initialize state from the idea prop if available
+  const [activeTool, setActiveTool] = useState<ToolType>(idea.brandIdentity ? 'brand' : null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Results State
-  const [brandData, setBrandData] = useState<BrandIdentity | null>(null);
-  const [landingData, setLandingData] = useState<LandingPageContent | null>(null);
-  const [mvpData, setMvpData] = useState<MVPSpecs | null>(null);
-  const [adData, setAdData] = useState<AdCreativesResult | null>(null);
+  // Results State - Initialize from idea prop
+  const [brandData, setBrandData] = useState<BrandIdentity | null>(idea.brandIdentity || null);
+  const [landingData, setLandingData] = useState<LandingPageContent | null>(idea.landingPage || null);
+  const [mvpData, setMvpData] = useState<MVPSpecs | null>(idea.mvpSpecs || null);
+  const [adData, setAdData] = useState<AdCreativesResult | null>(idea.adCreatives || null);
 
   const handleToolClick = async (tool: ToolType) => {
     // Allow retry if previously failed (error exists) or data is missing

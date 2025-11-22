@@ -47,6 +47,43 @@ export interface CommunityDeepDive {
   }[];
 }
 
+// Builder Studio Types
+export interface BrandIdentity {
+  name: string;
+  tagline: string;
+  logoConcept: string;
+  colors: { name: string; hex: string }[];
+  fontPairing: { primary: string; secondary: string };
+  voice: string;
+}
+
+export interface LandingPageContent {
+  headline: string;
+  subheadline: string;
+  cta: string;
+  benefits: { title: string; desc: string }[];
+}
+
+export interface MVPSpecs {
+  coreFeatures: string[];
+  techStack: string[];
+  userStories: string[];
+}
+
+export interface AdCreativeVariant {
+  platform: string; // e.g., "Facebook/Instagram", "LinkedIn", "Google Search"
+  headline: string;
+  primaryText: string;
+  visualPrompt: string; // Description for image generation
+  cta: string;
+}
+
+export interface AdCreativesResult {
+  strategy: string; // Brief strategy overview
+  variants: AdCreativeVariant[];
+  targetAudience: string[];
+}
+
 export interface BusinessIdea {
   id?: string; // Added optional ID for saving
   date: string; // Date of generation
@@ -82,6 +119,12 @@ export interface BusinessIdea {
     target: string;
     competitor: string;
   };
+
+  // Optional Builder Assets (Persisted)
+  brandIdentity?: BrandIdentity;
+  landingPage?: LandingPageContent;
+  mvpSpecs?: MVPSpecs;
+  adCreatives?: AdCreativesResult;
 }
 
 export interface DatabaseIdea {
@@ -131,43 +174,6 @@ export interface ResearchReport {
   trendData: ChartDataPoint[];
   currentVolume: string;
   growthPercentage: number;
-}
-
-// Builder Studio Types
-export interface BrandIdentity {
-  name: string;
-  tagline: string;
-  logoConcept: string;
-  colors: { name: string; hex: string }[];
-  fontPairing: { primary: string; secondary: string };
-  voice: string;
-}
-
-export interface LandingPageContent {
-  headline: string;
-  subheadline: string;
-  cta: string;
-  benefits: { title: string; desc: string }[];
-}
-
-export interface MVPSpecs {
-  coreFeatures: string[];
-  techStack: string[];
-  userStories: string[];
-}
-
-export interface AdCreativeVariant {
-  platform: string; // e.g., "Facebook/Instagram", "LinkedIn", "Google Search"
-  headline: string;
-  primaryText: string;
-  visualPrompt: string; // Description for image generation
-  cta: string;
-}
-
-export interface AdCreativesResult {
-  strategy: string; // Brief strategy overview
-  variants: AdCreativeVariant[];
-  targetAudience: string[];
 }
 
 export type PageView = 'home' | 'pricing' | 'login' | 'signup' | 'build' | 'research' | 'analysis' | 'saved' | 'signals';
@@ -271,5 +277,22 @@ export const DEFAULT_IDEA: BusinessIdea = {
     market: "Gig Economy",
     target: "Freelancers/Creators",
     competitor: "QuickBooks Self-Employed"
+  },
+  // Pre-generated assets for the default idea
+  brandIdentity: {
+      name: "FiscalFlow",
+      tagline: "Your Autonomous Financial Copilot",
+      logoConcept: "A minimalist 'F' symbol constructed from two rising bar chart columns, symbolizing growth and stability. The negative space forms a subtle forward arrow.",
+      colors: [
+          { name: "Emerald Trust", hex: "#10B981" },
+          { name: "Deep Navy", hex: "#1E3A8A" },
+          { name: "Clean White", hex: "#FFFFFF" },
+          { name: "Alert Coral", hex: "#FF7E67" }
+      ],
+      fontPairing: {
+          primary: "Plus Jakarta Sans",
+          secondary: "Inter"
+      },
+      voice: "Professional, Reassuring, and Proactive. We speak like a knowledgeable CFO who is always in your corner."
   }
 };
