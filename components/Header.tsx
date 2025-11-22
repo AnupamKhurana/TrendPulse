@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Menu, ChevronDown, X, Search, BookMarked, Settings } from 'lucide-react';
 import { PageView } from '../types';
@@ -39,12 +38,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
           {/* Logo */}
           <div className="flex items-center cursor-pointer group" onClick={() => handleNavClick('home')}>
              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center mr-2 shadow-lg shadow-emerald-200 group-hover:bg-emerald-700 transition-colors">
-                {/* Custom Pulse Icon */}
+                {/* VentureFlow Logo: A sharp 'V' forming an upward trend */}
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 12H5L8 20L13 4L17 14H22" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 19.5L10 7.5L14 15.5L20 4.5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 4.5H15" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
              </div>
-             <span className="font-bold text-xl text-gray-900 tracking-tight">TrendPulse<span className="text-emerald-600">.ai</span></span>
+             <span className="font-bold text-xl text-gray-900 tracking-tight">VentureFlow<span className="text-emerald-600">.ai</span></span>
           </div>
 
           {/* Desktop Nav */}

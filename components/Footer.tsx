@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PageView } from '../types';
 
@@ -14,12 +13,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     <div className="col-span-2 md:col-span-1">
                          <div className="flex items-center cursor-pointer mb-4" onClick={() => onNavigate('home')}>
                              <div className="w-6 h-6 bg-emerald-600 rounded-md flex items-center justify-center mr-2 shadow-sm">
-                                {/* Pulse Icon */}
+                                {/* VentureFlow Logo */}
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M2 12H5L8 20L13 4L17 14H22" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M4 19.5L10 7.5L14 15.5L20 4.5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M20 4.5H15" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                              </div>
-                             <span className="font-bold text-gray-900 tracking-tight">TrendPulse.ai</span>
+                             <span className="font-bold text-gray-900 tracking-tight">VentureFlow.ai</span>
                           </div>
                           <p className="text-gray-500 text-xs leading-relaxed mb-4">
                             The AI-powered co-founder for your next big opportunity. Analyze trends, validate ideas, and build MVPs in minutes.
@@ -73,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </div>
                 
                 <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 text-xs">
-                    <div>© 2025 TrendPulse. All rights reserved.</div>
+                    <div>© 2025 VentureFlow. All rights reserved.</div>
                     <div className="flex space-x-6 mt-4 md:mt-0">
                         <span className="hover:text-gray-600 cursor-pointer">Terms of Service</span>
                         <span className="hover:text-gray-600 cursor-pointer">Privacy Policy</span>
@@ -81,7 +81,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     </div>
                 </div>
                  <div className="mt-4 text-[10px] text-gray-300 text-center md:text-left leading-snug max-w-3xl">
-                    TrendPulse shares research and estimates for educational purposes only. AI-generated content may contain inaccuracies. 
+                    VentureFlow shares research and estimates for educational purposes only. AI-generated content may contain inaccuracies. 
                     Revenue estimates, scores, and examples are illustrative. Always conduct your own due diligence before investing.
                 </div>
             </div>

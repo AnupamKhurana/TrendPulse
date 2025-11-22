@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Sparkles, FileText, BarChart, CheckCircle, XCircle, AlertTriangle, Users, TrendingUp, Target, DollarSign, Shield, ArrowRight, Loader2 } from 'lucide-react';
 import { generateResearchReport, generateIdeaFromResearch } from '../services/geminiService';
@@ -157,13 +156,13 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) =
                     </h3>
                     
                     <div className="space-y-6 flex-grow">
-                        <MarketStat label="TAM" sub="Total Addressable Market" value={report.marketSize.tam} color="bg-emerald-50 border-emerald-100 text-emerald-900" />
-                        <MarketStat label="SAM" sub="Serviceable Available Market" value={report.marketSize.sam} color="bg-blue-50 border-blue-100 text-blue-900" />
-                        <MarketStat label="SOM" sub="Serviceable Obtainable Market" value={report.marketSize.som} color="bg-indigo-50 border-indigo-100 text-indigo-900" />
+                        <MarketStat label="TAM" sub="Total Addressable Market" value={report.marketSize?.tam || 'N/A'} color="bg-emerald-50 border-emerald-100 text-emerald-900" />
+                        <MarketStat label="SAM" sub="Serviceable Available Market" value={report.marketSize?.sam || 'N/A'} color="bg-blue-50 border-blue-100 text-blue-900" />
+                        <MarketStat label="SOM" sub="Serviceable Obtainable Market" value={report.marketSize?.som || 'N/A'} color="bg-indigo-50 border-indigo-100 text-indigo-900" />
                     </div>
 
                     <div className="mt-8 pt-6 border-t border-gray-100">
-                        <p className="text-xs text-gray-500 italic leading-relaxed">"{report.marketSize.explanation}"</p>
+                        <p className="text-xs text-gray-500 italic leading-relaxed">"{report.marketSize?.explanation}"</p>
                     </div>
                 </div>
 
@@ -198,7 +197,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) =
                     <Users className="w-5 h-5 mr-2 text-emerald-600" /> Competitive Landscape
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {report.competitors.map((comp, idx) => (
+                    {(report.competitors || []).map((comp, idx) => (
                         <div key={idx} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gray-100 group-hover:bg-emerald-500 transition-colors"></div>
                             <div className="flex justify-between items-start mb-4">
@@ -222,7 +221,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) =
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <SwotSection 
                         title="Strengths" 
-                        items={report.swot.strengths} 
+                        items={report.swot?.strengths || []} 
                         headerColor="text-emerald-700" 
                         icon={<CheckCircle className="w-5 h-5 text-emerald-600" />}
                         bg="bg-emerald-50/50"
@@ -230,7 +229,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) =
                     />
                     <SwotSection 
                         title="Weaknesses" 
-                        items={report.swot.weaknesses} 
+                        items={report.swot?.weaknesses || []} 
                         headerColor="text-rose-700" 
                         icon={<XCircle className="w-5 h-5 text-rose-600" />}
                         bg="bg-rose-50/50"
@@ -238,7 +237,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) =
                     />
                     <SwotSection 
                         title="Opportunities" 
-                        items={report.swot.opportunities} 
+                        items={report.swot?.opportunities || []} 
                         headerColor="text-blue-700" 
                         icon={<Sparkles className="w-5 h-5 text-blue-600" />}
                         bg="bg-blue-50/50"
@@ -246,7 +245,7 @@ export const ResearchPage: React.FC<ResearchPageProps> = ({ onIdeaValidated }) =
                     />
                     <SwotSection 
                         title="Threats" 
-                        items={report.swot.threats} 
+                        items={report.swot?.threats || []} 
                         headerColor="text-amber-700" 
                         icon={<AlertTriangle className="w-5 h-5 text-amber-600" />}
                         bg="bg-amber-50/50"

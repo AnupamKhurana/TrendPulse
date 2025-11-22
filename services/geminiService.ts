@@ -632,23 +632,29 @@ export const generateResearchReport = async (query: string): Promise<ResearchRep
 
 // Helper function to create a fallback idea if AI synthesis fails
 const createFallbackIdea = (query: string, report: ResearchReport): BusinessIdea => {
+    // Safe accessors
+    const competitors = report.competitors || [];
+    const marketSize = report.marketSize || { tam: "Unknown", sam: "Unknown", som: "Unknown", explanation: "" };
+    const trendData = report.trendData || [];
+    const topCompetitor = competitors[0]?.name || "Key Competitors";
+
     return {
         id: Date.now().toString(),
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         title: query.length > 60 ? "New Business Opportunity" : query,
         tags: ["Research Validated", "High Potential"],
-        oneLiner: report.summary.substring(0, 200) + "...",
-        description: report.summary,
+        oneLiner: (report.summary || "").substring(0, 200) + "...",
+        description: report.summary || "No summary available.",
         whyNow: "Validated by recent market search trends and competitive analysis.",
-        marketGap: `Identified market gap in the ${report.marketSize.tam} space with ${report.competitors.length} active competitors.`,
+        marketGap: `Identified market gap in the ${marketSize.tam} space with ${competitors.length} active competitors.`,
         executionPlan: [
-            `Analyze competitor pricing: ${report.competitors[0]?.name || "Key Players"}`,
+            `Analyze competitor pricing: ${topCompetitor}`,
             "Define MVP core features based on SWOT analysis",
-            `Launch landing page targeting: ${report.trendKeyword}`,
+            `Launch landing page targeting: ${report.trendKeyword || "Main Keyword"}`,
             "Execute marketing on validated channels",
             "Iterate based on early user feedback"
         ],
-        chartData: report.trendData || [],
+        chartData: trendData,
         growthPercentage: report.growthPercentage || 10,
         currentVolume: report.currentVolume || "N/A",
         volumeNote: "Based on specific query analysis",
@@ -678,7 +684,7 @@ const createFallbackIdea = (query: string, report: ResearchReport): BusinessIdea
             type: "Startup",
             market: "Niche",
             target: "General Audience",
-            competitor: report.competitors[0]?.name || "Existing Players"
+            competitor: topCompetitor
         }
     };
 };
@@ -691,13 +697,21 @@ export const generateIdeaFromResearch = async (query: string, report: ResearchRe
         // Check provider config
         const isLocal = currentConfig.provider === 'local';
         
+        // Safely access report fields
+        const competitors = report.competitors || [];
+        const marketSize = report.marketSize || { tam: "N/A", sam: "N/A", som: "N/A" };
+        const trendKeyword = report.trendKeyword || query;
+        const currentVolume = report.currentVolume || "N/A";
+        const growthPercentage = report.growthPercentage || 0;
+        const topCompetitor = competitors[0]?.name || "Existing Players";
+
         // Context is the report + query
         const context = `
             User Idea: ${query}
             Research Summary: ${report.summary}
-            Market Size: ${JSON.stringify(report.marketSize)}
-            Competitors: ${JSON.stringify(report.competitors)}
-            Trends: ${report.trendKeyword} (Vol: ${report.currentVolume}, Growth: ${report.growthPercentage}%)
+            Market Size: ${JSON.stringify(marketSize)}
+            Competitors: ${JSON.stringify(competitors)}
+            Trends: ${trendKeyword} (Vol: ${currentVolume}, Growth: ${growthPercentage}%)
         `;
 
         if (onProgress) onProgress("Synthesizing full business plan from research...");
@@ -711,19 +725,19 @@ export const generateIdeaFromResearch = async (query: string, report: ResearchRe
         
         Structure required:
         {
-            "title": "${query}", // Or a catchy startup name based on it
+            "title": "${query}", 
             "tags": ["Validated", "High Potential", "Niche"],
             "oneLiner": "Detailed 40-50 word summary hook.",
             "description": "Full detailed description of the solution.",
             "whyNow": "Why is timing right? (Use research context)",
             "marketGap": "What is missing? (Use competitor analysis)",
             "executionPlan": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
-            "growthPercentage": ${report.growthPercentage || 15},
-            "currentVolume": "${report.currentVolume || 'N/A'}",
+            "growthPercentage": ${growthPercentage},
+            "currentVolume": "${currentVolume}",
             "volumeNote": "Based on search analysis",
-            "keyword": "${report.trendKeyword || query}",
+            "keyword": "${trendKeyword}",
             "chartData": ${JSON.stringify(report.trendData || [])},
-            "opportunityScore": 8, // 1-10, infer from market size
+            "opportunityScore": 8, // 1-10
             "problemSeverity": 8, // 1-10
             "feasibilityScore": 8, // 1-10
             "timingScore": 8, // 1-10
@@ -744,7 +758,7 @@ export const generateIdeaFromResearch = async (query: string, report: ResearchRe
                 "platformBreakdown": []
             },
             "categories": {
-                "type": "Startup", "market": "Niche", "target": "Users", "competitor": "${report.competitors[0]?.name || 'Existing Players'}"
+                "type": "Startup", "market": "Niche", "target": "Users", "competitor": "${topCompetitor}"
             }
         }
         
@@ -775,8 +789,7 @@ export const generateIdeaFromResearch = async (query: string, report: ResearchRe
         
         let idea = extractJson(jsonStr);
         
-        // CRITICAL FIX: If AI failed to generate a valid idea structure, fallback to manual construction
-        // instead of returning the default idea. This ensures the user sees THEIR idea.
+        // Fallback to manual construction if AI generation fails or is incomplete
         if (!idea || !idea.title) {
              console.warn("AI Synthesis failed, using manual fallback from report");
              return createFallbackIdea(query, report);

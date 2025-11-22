@@ -189,87 +189,87 @@ export interface AIProviderConfig {
 export const DEFAULT_IDEA: BusinessIdea = {
   id: "default-1",
   date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-  title: "Smart inventory tracker that predicts supply needs for cleaning businesses",
-  tags: ["Perfect Timing", "Unfair Advantage", "Product Ready"],
-  oneLiner: "Running a commercial cleaning service means facing constant supply shortages and lost revenue. InStockAI transforms this by using existing cameras to monitor inventory in real-time. It learns usage patterns, predicts exactly when you'll run out, and automates reordering, ensuring your team always has what they need without excess stock.",
-  description: "The platform connects to your existing systems and uses smart cameras or simple scanning to monitor supply levels in real-time. It learns your crew's usage patterns, factors in upcoming jobs, and sends alerts when it's time to reorder. Instead of playing inventory guesswork, you get precise forecasts.",
-  whyNow: "With the global cleaning services market booming towards $616.98 billion by 2030, now is the ideal time to launch 'InStockAI'.",
-  marketGap: "The biggest market gap for 'InStockAI' lies in its ability to provide real-time, AI-driven inventory management specifically for commercial cleaners.",
+  title: "Autonomous AI Finance Manager for Gig Economy Workers",
+  tags: ["FinTech", "AI Agent", "High Growth"],
+  oneLiner: "Freelancers struggle with variable income and surprise tax bills. FiscalFlow connects to bank feeds, uses predictive AI to forecast lean months, and automatically sweeps a calculated percentage of every deposit into a high-yield tax savings bucket, acting as a 'CFO for a team of one'.",
+  description: "The platform integrates with banking APIs and gig platforms (Upwork, Uber, Stripe) to centralize income data. It uses predictive AI models to forecast earnings volatility, automatically setting aside the perfect amount for taxes and emergency funds. It provides a 'Safe-to-Spend' daily budget that dynamically adjusts based on upcoming bills and projected income gaps, preventing cash flow crunches before they happen.",
+  whyNow: "With the global gig economy projected to reach $455B by 2024 and AI becoming trusted for financial advice, the timing is perfect for an autonomous solution that replaces manual spreadsheets.",
+  marketGap: "Existing tools like QuickBooks are retrospective accounting software. There is no proactive 'Financial Autopilot' that moves money for you to prevent tax debt and smooth consumption.",
   executionPlan: [
-      "Develop MVP with basic QR code scanning and manual entry features for supply tracking.",
-      "Pilot with 10 local commercial cleaning businesses to gather usage data and train the prediction algorithm.",
-      "Integrate with popular accounting software like QuickBooks and Xero for automated reordering.",
-      "Launch mobile app for field staff to report usage in real-time.",
-      "Scale marketing efforts targeting cleaning franchises and facility management companies."
+      "Develop MVP using Plaid API for bank connections and OpenAI for transaction categorization.",
+      "Partner with a Banking-as-a-Service (BaaS) provider to offer high-yield savings accounts embedded in the app.",
+      "Launch a 'Tax Calculator' lead magnet to capture freelancer emails via targeted LinkedIn ads.",
+      "Implement 'Safe-to-Spend' widget for iOS/Android home screens.",
+      "Scale by partnering with influencer agencies and gig worker unions."
   ],
-  growthPercentage: 519,
-  currentVolume: "9.9k",
-  volumeNote: "Rapidly growing interest in automated logistics solutions.",
-  keyword: "Cloud based inventory management",
+  growthPercentage: 312,
+  currentVolume: "45.2k",
+  volumeNote: "Surge in 'AI personal finance' searches.",
+  keyword: "AI personal finance app",
   isSimulated: false,
   chartData: [
-    { year: '2022', volume: 20 },
-    { year: '2023', volume: 35 },
-    { year: '2024', volume: 45 },
-    { year: '2025', volume: 95 },
+    { year: '2022', volume: 15 },
+    { year: '2023', volume: 42 },
+    { year: '2024', volume: 88 },
+    { year: '2025', volume: 145 },
   ],
   opportunityScore: 9,
-  problemSeverity: 8,
-  feasibilityScore: 6,
-  timingScore: 9,
+  problemSeverity: 9,
+  feasibilityScore: 7,
+  timingScore: 10,
   businessFits: [
     { 
         label: "Market Need", 
-        value: "High", 
-        subtext: "Urgent demand in commercial sectors", 
-        color: "text-emerald-500",
-        tooltip: "Measures the current demand intensity and urgency for a solution in this specific market vertical."
+        value: "Critical", 
+        subtext: "Freelancers fear tax season", 
+        color: "text-red-500",
+        tooltip: "The pain of unexpected tax bills creates a critical, urgent need for automation."
     },
     { 
         label: "Innovation", 
         value: "High", 
-        subtext: "First-mover advantage with AI", 
+        subtext: "Predictive Cash Flow AI", 
         color: "text-blue-500",
-        tooltip: "Assesses the novelty of the solution and its technological differentiation from existing alternatives."
+        tooltip: "Uses novel forecasting models to predict variable income, differentiating from static budgeting apps."
     },
     { 
         label: "Regulatory Alignment", 
-        value: "Safe", 
-        subtext: "Low compliance hurdles", 
-        color: "text-emerald-500",
-        tooltip: "Evaluates legal risks, compliance requirements, and adherence to industry standards."
+        value: "Medium", 
+        subtext: "FinTech Compliance Req.", 
+        color: "text-orange-500",
+        tooltip: "Requires strict adherence to financial data security standards (SOC2, PCI) and banking regulations."
     },
     { 
         label: "Social Impact", 
-        value: "Medium", 
-        subtext: "Reduces waste and improves efficiency", 
-        color: "text-orange-500",
-        tooltip: "Estimates the positive effect on society, sustainability, or community well-being."
+        value: "High", 
+        subtext: "Financial health for creators", 
+        color: "text-emerald-500",
+        tooltip: "Directly improves the financial stability and mental well-being of the independent workforce."
     },
   ],
   communitySignals: [
-    { source: "Reddit", stats: "4 subreddits • 2.5M+ members", score: "8 / 10" },
-    { source: "Facebook", stats: "5 groups • 150K+ members", score: "7 / 10" },
+    { source: "r/freelance", stats: "320k Members", score: "9 / 10" },
+    { source: "Twitter/X", stats: "FinTech Topic", score: "8 / 10" },
   ],
   communityDeepDive: {
-      sentimentScore: 78,
-      sentimentBreakdown: { positive: 65, neutral: 25, negative: 10 },
-      topKeywords: ["inventory nightmare", "cleaning supplies cost", "waste management", "employee theft"],
+      sentimentScore: 82,
+      sentimentBreakdown: { positive: 70, neutral: 20, negative: 10 },
+      topKeywords: ["tax anxiety", "variable income", "budgeting app", "freelance finance"],
       discussions: [
-          { platform: "Reddit r/cleaning_business", author: "clean_king_99", text: "I lose about 15% of my margin just on supplies disappearing or being overused. I'd pay for a tracker.", sentiment: "positive" },
-          { platform: "IndieHackers", author: "SaaS_Founder", text: "The hardware component might be tricky, but the software need is definitely there.", sentiment: "neutral" },
-          { platform: "Facebook Group", author: "Sarah J.", text: "Stop trying to automate everything. Pen and paper works fine for my small crew.", sentiment: "negative" }
+          { platform: "Reddit r/freelance", author: "dev_guy_99", text: "I just got hit with a $5k tax bill I didn't save for. I need something that just takes the money automatically.", sentiment: "positive" },
+          { platform: "Twitter", author: "@gig_economist", text: "Most budgeting apps assume you get a paycheck every 2 weeks. They are useless for us.", sentiment: "neutral" },
+          { platform: "ProductHunt", author: "sarah_design", text: "Finally, an app that understands my income goes up and down. The safe-to-spend feature is a lifesaver.", sentiment: "positive" }
       ],
       platformBreakdown: [
-          { name: "Reddit", activityLevel: "High", userIntent: "Venting/Seeking Solutions" },
-          { name: "Facebook Groups", activityLevel: "Medium", userIntent: "Peer Support" },
-          { name: "Twitter/X", activityLevel: "Low", userIntent: "News/Trends" }
+          { name: "Reddit", activityLevel: "High", userIntent: "Seeking Advice/Venting" },
+          { name: "TikTok", activityLevel: "Medium", userIntent: "Financial Hacks" },
+          { name: "LinkedIn", activityLevel: "Low", userIntent: "Professional Networking" }
       ]
   },
   categories: {
-    type: "SaaS",
-    market: "B2B",
-    target: "Small Businesses",
-    competitor: "Fishbowl"
+    type: "B2C FinTech",
+    market: "Gig Economy",
+    target: "Freelancers/Creators",
+    competitor: "QuickBooks Self-Employed"
   }
 };

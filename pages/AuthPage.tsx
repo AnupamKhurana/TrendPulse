@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface AuthPageProps {
@@ -12,7 +11,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center mb-4 shadow-md">
              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 12H5L8 20L13 4L17 14H22" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 19.5L10 7.5L14 15.5L20 4.5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 4.5H15" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
              </svg>
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
