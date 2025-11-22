@@ -78,7 +78,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
           <AreaChart
             data={data}
             margin={{
-              top: 20,
+              top: 30,
               right: 10,
               left: 0, 
               bottom: 0,
@@ -103,13 +103,13 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data, keyword, currentVo
                 tickLine={false} 
                 tick={{fontSize: 10, fill: '#9CA3AF', fontFamily: 'Plus Jakarta Sans, sans-serif'}} 
                 tickFormatter={formatYAxis}
-                width={40}
+                width={45}
             >
                 <Label 
                     value="Volume" 
                     position="insideTopLeft" 
                     offset={0}
-                    dy={-25}
+                    dy={-20}
                     dx={0}
                     style={{ fill: '#9CA3AF', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', fontFamily: 'Plus Jakarta Sans, sans-serif' }} 
                 />
