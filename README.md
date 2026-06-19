@@ -1,7 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # 💡 TrendPulse
 
 **TrendPulse** is an AI-powered trend analysis and startup ideation platform. It leverages Large Language Models (Google Gemini) to identify rising market search patterns, formulate viable business opportunities, analyze market demand, map out tech architectures, and generate actionable launch roadmaps.
