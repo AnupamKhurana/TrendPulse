@@ -1,5 +1,8 @@
 # 💡 TrendPulse — AI Startup Ideation & Market Intelligence Dashboard
 
+> **App Root Folder:** `/mnt/1fc0b605-b95c-4190-ba0a-ae87f22cc120/development/TrendPulse`
+
+
 **TrendPulse** is a feature-rich, interactive web application designed to analyze search volume trends, evaluate business feasibility, run community sentiment deep-dives, and generate comprehensive startup launch roadmaps using advanced AI logic.
 
 It features **dual-LLM integration**, allowing you to run predictions either using **Google Gemini** or a **local LLM instance** (like Ollama or llama.cpp) running on your own hardware.
