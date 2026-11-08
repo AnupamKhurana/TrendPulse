@@ -1,113 +1,116 @@
 # 💡 TrendPulse — AI Startup Ideation & Market Intelligence Dashboard
 
-> **App Root Folder:** `/mnt/1fc0b605-b95c-4190-ba0a-ae87f22cc120/development/TrendPulse`
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-API-4285F4?style=for-the-badge&logo=google-gemini&logoColor=white)](https://ai.google.dev/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-000000?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.ai)
+[![Recharts](https://img.shields.io/badge/Charts-Recharts-22b5bf?style=for-the-badge)](https://recharts.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-
-**TrendPulse** is a feature-rich, interactive web application designed to analyze search volume trends, evaluate business feasibility, run community sentiment deep-dives, and generate comprehensive startup launch roadmaps using advanced AI logic.
-
-It features **dual-LLM integration**, allowing you to run predictions either using **Google Gemini** or a **local LLM instance** (like Ollama or llama.cpp) running on your own hardware.
+An interactive, AI-powered market intelligence and startup ideation platform that discovers high-potential product niches, analyzes search volume trends, conducts community sentiment deep-dives across Reddit and TikTok, and synthesizes complete go-to-market execution roadmaps. Features **Dual-LLM architecture** supporting both **Google Gemini** and **local offline LLMs** (Ollama / llama.cpp).
 
 ---
 
 ## ✨ Features & Capabilities
 
-### 1. 🔍 Trend Detection & Ideation
-- **Live Search Signals**: Reviews search volumes, growth trajectory percentages, and market gaps to present viable product niches.
-- **AI Core Scores**: Generates timing, timing feasibility, opportunity, and problem-severity scores (rated out of 10) dynamically.
-- **Why Now & Execution Plan**: Outlines concrete reasons to launch immediately and presents a structured 5-step go-to-market plan.
+```
+  ┌─────────────────────────────────────────────────────────────┐
+  │                 TrendPulse Intelligence Engine              │
+  └───────────────┬─────────────────────────────┬───────────────┘
+                  ▼                             ▼
+       [ Google Gemini Cloud ]       [ Local LLM / Ollama ]
+                  │                             │
+    ┌─────────────┴─────────────────────────────┴─────────────┐
+    ▼                         ▼                               ▼
+1. Trend & Ideation     2. Sentiment Signals          3. Builder Studio
+   • Search Trajectory     • Reddit/TikTok/LinkedIn      • Brand Identity
+   • Timing & Scores       • Pain Points & Intent        • MVP Architecture
+   • Opportunity Gaps      • Community Sentiment         • 4-Week Dev Plan
+```
 
-### 2. 🧬 Community Deep-Dive (Signals)
-- **Sentiment Tracker**: Generates sentiment metrics (Positive, Neutral, Negative) on community discussions.
-- **Platform Breakdown**: Analyzes user activity level and intent (e.g. "Seeking Advice", "Complaining", "Buying") across **Reddit**, **TikTok**, and **LinkedIn**.
-- **Sample Discussion Engine**: Creates simulated user testimonies/concerns to showcase the exact pain points being addressed.
+### 1. 🔍 Trend Detection & Business Scoring
+- **Search Growth Trajectory**: Monitors keyword demand curves and visualizes historical interest with Recharts.
+- **AI Viability Scoring**: Computes instant scores for Market Timing, Opportunity Size, Technical Feasibility, and Problem Severity.
+- **Launch Rationalization**: Delivers clear "Why Now" market theses and phased execution playbooks.
 
-### 3. 📊 Market Research & Competitor Analysis
-- **TAM, SAM, SOM Sizing**: Generates Total Addressable Market (TAM), Serviceable Available Market (SAM), and Serviceable Obtainable Market (SOM) metrics.
-- **SWOT Analysis**: Identifies Strengths, Weaknesses, Opportunities, and Threats for any query.
-- **Competitor Matrix**: Compiles top competitors, their pricing models, and key descriptions.
+### 2. 🧬 Community Sentiment & Social Signals
+- **Multi-Platform Scraping Synthesis**: Synthesizes real community intent across **Reddit**, **TikTok**, and **LinkedIn**.
+- **Pain Point Extraction**: Categorizes comments into "Complaints", "Seeking Advice", or "Buying Intent" to isolate real friction points.
 
-### 4. 🏗️ Builder Studio (Build Page)
-- **Brand Identity**: Suggests brand names, slogans, logo concepts, Hex color palettes, typography, and brand voice guidelines.
-- **Landing Page Copy**: Generates ready-to-use headlines, subheadlines, primary CTAs, and benefits lists.
-- **MVP Technical Specifications**: Recommends a custom tech stack, core database schemas, API routes, user stories, and a 4-week development roadmap.
-- **Ad Creative Builder**: Outlines platform-specific campaigns (Facebook, LinkedIn, Google Search) with headlines, visual prompts, and target audiences.
+### 3. 📊 Market Sizing & Competitive Audits
+- **TAM / SAM / SOM Models**: Generates automated market size estimations.
+- **Dynamic SWOT Frameworks**: Evaluates Strengths, Weaknesses, Opportunities, and Threats for any concept.
+- **Competitor Matrices**: Identifies incumbents, product gaps, and pricing benchmarks.
 
----
-
-## 🛠️ Technology Stack
-
-- **Frontend Framework**: React 18, TypeScript, TailwindCSS
-- **Build Tool**: Vite
-- **Charting Engine**: Recharts (for trend visualization)
-- **Icons**: Lucide React
-- **AI Backend**: 
-  - **Gemini API** (via Google AI Studio SDK)
-  - **Local LLM support** (Ollama/llama.cpp compatible)
-
----
-
-## ⚙️ Configuration & Dual-LLM Modes
-
-TrendPulse supports flexible LLM architectures which you can toggle from the **Settings Modal** in the UI:
-
-1. **Google Gemini Mode** (Recommended):
-   - Fast, high-accuracy inference using official Google Gemini models.
-   - Requires setting `GEMINI_API_KEY` in your `.env.local` file.
-   
-2. **Local LLM Mode**:
-   - Run completely locally using Ollama, llama.cpp, or LM Studio.
-   - Compatible with models like `gemma3`, `llama3.1`, or `mistral`.
-   - Requires configuring your local endpoint (e.g. `http://localhost:11434/v1` or `http://localhost:8080/v1`).
-   
-3. **Hybrid Search Mode**:
-   - Uses Gemini for search analysis and falls back to your local LLM for code, text synthesis, and specification planning.
+### 4. 🏗️ Founder Studio & MVP Blueprint
+- **Brand Identity & Copywriting**: Creates brand names, color palettes, tagline variations, and conversion-optimized hero copy.
+- **Technical MVP Specifications**: Auto-generates recommended tech stacks, database schemas, API routes, and 4-week sprint milestones.
+- **Ad Campaigns**: Generates targeted copy for Google Ads, Facebook, and LinkedIn sponsored content.
 
 ---
 
-## 🚀 Installation & Running Locally
+## 🛠️ Dual-LLM Modes
 
-### 1. Clone the Repository
+Switch between inference engines directly from the **Settings Modal** inside the app:
+
+1. **Google Gemini (Cloud)**: Lightning-fast reasoning and structured JSON output using Gemini models (`gemini-2.0-flash` / `gemini-1.5-pro`).
+2. **Local LLM (Private & Free)**: Route all analysis through local endpoints via [Ollama](https://ollama.ai) (`http://localhost:11434/v1`) or [llama.cpp](https://github.com/ggerganov/llama.cpp) (`http://localhost:8080/v1`).
+
+---
+
+## 📂 Project Structure
+
+```text
+TrendPulse/
+├── components/          # Reusable UI components
+│   ├── Header.tsx       # Navigation and dashboard header
+│   ├── IdeaHero.tsx     # Hero card & market opportunity scores
+│   ├── TrendChart.tsx   # Interactive Recharts volume graph
+│   └── SettingsModal.tsx# AI Provider switcher (Gemini vs. Local LLM)
+├── pages/               # Primary dashboard views
+│   ├── ResearchPage.tsx # TAM/SAM/SOM, SWOT, and competitor analysis
+│   ├── BuildPage.tsx    # Brand kits, MVP technical specs, and ad campaigns
+│   ├── SignalsPage.tsx  # Social sentiment & customer pain point explorer
+│   └── SavedPage.tsx    # Saved startup concepts library
+├── services/
+│   └── geminiService.ts # Dual-LLM dispatch layer
+├── types.ts             # TypeScript interfaces and models
+├── vite.config.ts       # Vite configuration
+└── package.json         # Dependencies & scripts
+```
+
+---
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+- Node.js 18+ and npm
+- (Optional) Google Gemini API key or a local Ollama instance
+
+### 1. Clone & Install
 ```bash
 git clone https://github.com/AnupamKhurana/TrendPulse.git
 cd TrendPulse
-```
-
-### 2. Install Dependencies
-```bash
 npm install
 ```
 
-### 3. Setup Environment Variables
-Create a `.env.local` in the root of the project:
+### 2. Configure Environment (Optional for Cloud Mode)
+Create a `.env.local` file in the project root:
 ```env
-# Google Gemini API key
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
+*(If using local Ollama, you can skip this step and configure the local host URL inside the in-app Settings modal).*
 
-### 4. Start the Application
+### 3. Launch Development Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your web browser.
+Open **`http://localhost:5173`** in your browser.
 
 ---
 
-## 📂 Folder Overview
+## 📄 License
 
-```
-TrendPulse/
-├── components/          # React Components
-│   ├── Header.tsx       # Core navigation and page switching
-│   ├── IdeaHero.tsx     # The central business idea card & score panels
-│   ├── TrendChart.tsx   # Recharts visualization of interest volume
-│   └── SettingsModal.tsx# Handles API key & Local/Gemini provider toggle
-├── pages/               # Dashboard View Layouts
-│   ├── ResearchPage.tsx # TAM/SAM/SOM, SWOT, and competitor analysis
-│   ├── BuildPage.tsx    # Brand, landing page copy, MVP specs, and ads
-│   ├── SignalsPage.tsx  # Reddit/TikTok community sentiment analyzer
-│   └── SavedPage.tsx    # Library of saved business concepts
-├── services/
-│   └── geminiService.ts # Dual-LLM router & API endpoints caller
-├── types.ts             # TypeScript definitions for structures
-└── vite.config.ts       # Vite config
-```
+This project is licensed under the MIT License - see the `LICENSE` file for details.
